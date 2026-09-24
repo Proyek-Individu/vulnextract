@@ -1,5 +1,5 @@
 """
-CLI Entrypoint for Method-Level CVE Pair Extraction.
+CLI Entrypoint for Statement-Level and Method-Level CVE Pair Extraction.
 """
 
 import argparse
@@ -19,9 +19,11 @@ if str(CURRENT_DIR) not in sys.path:
 try:
     from src.config import DEFAULT_INPUT_FILE, DEFAULT_OUTPUT_FILE
     from src.pipeline import CveMethodPipeline
+    from src.strategies import AlignedPairingStrategy, StrictZipPairingStrategy
 except ImportError:
     from config import DEFAULT_INPUT_FILE, DEFAULT_OUTPUT_FILE
     from pipeline import CveMethodPipeline
+    from strategies import AlignedPairingStrategy, StrictZipPairingStrategy
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -36,7 +38,7 @@ def setup_logging(verbose: bool = False) -> None:
 def parse_args() -> argparse.Namespace:
     """Parses command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Extract method-level vulnerable and fixed code pairs from CVE dataset."
+        description="Extract statement-level or method-level vulnerable and fixed code pairs from CVE dataset."
     )
     parser.add_argument(
         "-i", "--input",
@@ -51,6 +53,18 @@ def parse_args() -> argparse.Namespace:
         help=f"Path to output CSV file (default: {DEFAULT_OUTPUT_FILE})"
     )
     parser.add_argument(
+        "-g", "--granularity",
+        choices=["statement", "method"],
+        default="statement",
+        help="Extraction granularity: 'statement' (split on blank newlines) or 'method' (default: statement)"
+    )
+    parser.add_argument(
+        "-s", "--strategy",
+        choices=["aligned", "strict"],
+        default="aligned",
+        help="Pairing strategy: 'aligned' (sequence diff alignment) or 'strict' (exact 1:1 count) (default: aligned)"
+    )
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Enable verbose debug logging."
@@ -63,7 +77,16 @@ def main() -> None:
     args = parse_args()
     setup_logging(args.verbose)
 
-    pipeline = CveMethodPipeline()
+    strategy = (
+        AlignedPairingStrategy()
+        if args.strategy == "aligned"
+        else StrictZipPairingStrategy()
+    )
+
+    pipeline = CveMethodPipeline(
+        pairing_strategy=strategy,
+        granularity=args.granularity
+    )
 
     try:
         _, stats = pipeline.process_file(
@@ -73,8 +96,12 @@ def main() -> None:
 
         print()
         print("Finished!")
+        print(f"Granularity : {args.granularity}")
+        print(f"Strategy    : {args.strategy}")
         print(f"Input rows  : {stats.total_input_rows}")
         print(f"Output rows : {stats.total_output_rows}")
+        print(f"Skipped no-code  : {stats.skipped_no_code}")
+        print(f"Skipped mismatch : {stats.skipped_mismatch}")
         print(f"Output file : {args.output}")
 
     except Exception as e:

@@ -1,5 +1,5 @@
 """
-Core Data Pipeline for CVE Method Pair Processing.
+Core Data Pipeline for CVE Code Pair Processing (Statement-level and Method-level).
 """
 
 import logging
@@ -10,21 +10,31 @@ import pandas as pd
 
 from .extractors import get_extractor
 from .models import PairingStatus, PipelineStats
-from .strategies import BasePairingStrategy, StrictZipPairingStrategy
+from .strategies import AlignedPairingStrategy, BasePairingStrategy, StrictZipPairingStrategy
 
 logger = logging.getLogger(__name__)
 
 
 class CveMethodPipeline:
     """
-    Orchestrates the transformation of raw CVE commit records into method-level granularity pairs.
+    Orchestrates the transformation of raw CVE commit records into statement-level
+    or method-level granularity pairs.
     """
 
     def __init__(
         self,
-        pairing_strategy: Optional[BasePairingStrategy] = None
+        pairing_strategy: Optional[BasePairingStrategy] = None,
+        granularity: str = "statement"
     ) -> None:
-        self.pairing_strategy = pairing_strategy or StrictZipPairingStrategy()
+        self.granularity = granularity.lower().strip()
+        if pairing_strategy is not None:
+            self.pairing_strategy = pairing_strategy
+        else:
+            self.pairing_strategy = (
+                AlignedPairingStrategy()
+                if self.granularity == "statement"
+                else StrictZipPairingStrategy()
+            )
 
     def process_file(
         self,
@@ -32,7 +42,7 @@ class CveMethodPipeline:
         output_path: Optional[Union[str, Path]] = None
     ) -> Tuple[pd.DataFrame, PipelineStats]:
         """
-        Reads input CSV, extracts methods, pairs them, and optionally writes output CSV.
+        Reads input CSV, extracts code snippets, pairs them, and optionally writes output CSV.
 
         Args:
             input_path: Path to the input CSV file.
@@ -87,26 +97,30 @@ class CveMethodPipeline:
                 stats.skipped_unsupported_language += 1
                 continue
 
-            vulnerable_methods = extractor.extract_methods(vulnerable_code)
-            fixed_methods = extractor.extract_methods(fixed_code)
+            if self.granularity == "statement":
+                vulnerable_snippets = extractor.extract_statements(vulnerable_code)
+                fixed_snippets = extractor.extract_statements(fixed_code)
+            else:
+                vulnerable_snippets = extractor.extract_methods(vulnerable_code)
+                fixed_snippets = extractor.extract_methods(fixed_code)
 
             pairing_result = self.pairing_strategy.pair(
-                vulnerable_methods=vulnerable_methods,
-                fixed_methods=fixed_methods
+                vulnerable_snippets=vulnerable_snippets,
+                fixed_snippets=fixed_snippets
             )
 
-            if pairing_result.status == PairingStatus.NO_VULNERABLE_METHODS:
+            if pairing_result.status in (PairingStatus.NO_VULNERABLE_CODE, PairingStatus.NO_VULNERABLE_METHODS):
                 logger.warning(
-                    f"No vulnerable method found at row {index}"
+                    f"No vulnerable snippets found at row {index}"
                 )
-                stats.skipped_no_methods += 1
+                stats.skipped_no_code += 1
                 continue
 
             elif pairing_result.status == PairingStatus.MISMATCH:
                 logger.warning(
-                    f"Method count mismatch at row {index}: "
-                    f"vulnerable={len(vulnerable_methods)}, "
-                    f"fixed={len(fixed_methods)}"
+                    f"Snippet count mismatch at row {index}: "
+                    f"vulnerable={len(vulnerable_snippets)}, "
+                    f"fixed={len(fixed_snippets)}"
                 )
                 stats.skipped_mismatch += 1
                 continue
@@ -114,12 +128,17 @@ class CveMethodPipeline:
             elif pairing_result.status == PairingStatus.SUCCESS:
                 for pair in pairing_result.pairs:
                     new_row = row.to_dict()
-                    new_row["vulnerable_code"] = pair.vulnerable_method
-                    new_row["fixed_code"] = pair.fixed_method
-                    new_row["granularity"] = "method"
+                    new_row["vulnerable_code"] = pair.vulnerable_code
+                    new_row["fixed_code"] = pair.fixed_code
+                    new_row["granularity"] = self.granularity
                     output_rows.append(new_row)
 
         output_df = pd.DataFrame(output_rows)
         stats.total_output_rows = len(output_df)
 
         return output_df, stats
+
+
+# Backward compatibility alias
+CvePipeline = CveMethodPipeline
+

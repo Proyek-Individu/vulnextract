@@ -2,6 +2,7 @@
 Pairing strategies module.
 """
 
-from .pairing import BasePairingStrategy, StrictZipPairingStrategy
+from .pairing import AlignedPairingStrategy, BasePairingStrategy, StrictZipPairingStrategy
 
-__all__ = ["BasePairingStrategy", "StrictZipPairingStrategy"]
+__all__ = ["BasePairingStrategy", "StrictZipPairingStrategy", "AlignedPairingStrategy"]
+

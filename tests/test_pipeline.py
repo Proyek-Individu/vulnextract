@@ -1,5 +1,5 @@
 """
-Unit tests for modular CVE method extraction pipeline across all supported languages.
+Unit tests for modular CVE statement and method extraction pipeline across supported languages.
 """
 
 import unittest
@@ -15,7 +15,7 @@ from src.extractors.python import PythonMethodExtractor
 from src.extractors.rust import RustMethodExtractor
 from src.extractors.typescript import TypescriptMethodExtractor
 from src.models import PairingStatus
-from src.strategies.pairing import StrictZipPairingStrategy
+from src.strategies.pairing import AlignedPairingStrategy, StrictZipPairingStrategy
 from src.pipeline import CveMethodPipeline
 
 
@@ -69,32 +69,60 @@ class TestLanguageExtractors(unittest.TestCase):
         methods = extractor.extract_methods(code)
         self.assertEqual(len(methods), 1)
 
+    def test_extract_statements_blank_newlines(self):
+        extractor = JavaMethodExtractor()
+        code = (
+            "List<SearchResult> result = new ArrayList<SearchResult>();\n\n"
+            "if (StringUtils.isEmpty(keywords)) {\n    return result;\n}\n\n"
+            "return result;"
+        )
+        statements = extractor.extract_statements(code)
+        self.assertEqual(len(statements), 3)
+        self.assertTrue(statements[0].startswith("List<SearchResult>"))
+        self.assertTrue(statements[1].startswith("if (StringUtils.isEmpty"))
+        self.assertEqual(statements[2], "return result;")
+
 
 class TestPairingStrategy(unittest.TestCase):
     def setUp(self):
-        self.strategy = StrictZipPairingStrategy()
+        self.strict_strategy = StrictZipPairingStrategy()
+        self.aligned_strategy = AlignedPairingStrategy()
 
-    def test_pair_matching_counts(self):
-        v_methods = ["void vuln1() {}", "void vuln2() {}"]
-        f_methods = ["void fix1() {}", "void fix2() {}"]
-        result = self.strategy.pair(v_methods, f_methods)
+    def test_strict_pair_matching_counts(self):
+        v_snippets = ["void vuln1() {}", "void vuln2() {}"]
+        f_snippets = ["void fix1() {}", "void fix2() {}"]
+        result = self.strict_strategy.pair(v_snippets, f_snippets)
 
         self.assertEqual(result.status, PairingStatus.SUCCESS)
         self.assertEqual(len(result.pairs), 2)
-        self.assertEqual(result.pairs[0].vulnerable_method, "void vuln1() {}")
-        self.assertEqual(result.pairs[0].fixed_method, "void fix1() {}")
+        self.assertEqual(result.pairs[0].vulnerable_code, "void vuln1() {}")
+        self.assertEqual(result.pairs[0].fixed_code, "void fix1() {}")
 
-    def test_pair_mismatch(self):
-        v_methods = ["void vuln1() {}"]
-        f_methods = ["void fix1() {}", "void fix2() {}"]
-        result = self.strategy.pair(v_methods, f_methods)
+    def test_strict_pair_mismatch(self):
+        v_snippets = ["void vuln1() {}"]
+        f_snippets = ["void fix1() {}", "void fix2() {}"]
+        result = self.strict_strategy.pair(v_snippets, f_snippets)
 
         self.assertEqual(result.status, PairingStatus.MISMATCH)
         self.assertEqual(len(result.pairs), 0)
 
-    def test_pair_no_vulnerable_methods(self):
-        result = self.strategy.pair([], ["void fix1() {}"])
-        self.assertEqual(result.status, PairingStatus.NO_VULNERABLE_METHODS)
+    def test_strict_pair_no_vulnerable_snippets(self):
+        result = self.strict_strategy.pair([], ["void fix1() {}"])
+        self.assertEqual(result.status, PairingStatus.NO_VULNERABLE_CODE)
+
+    def test_aligned_pair_with_insertion(self):
+        v_snippets = ["stmt1();", "stmt3();"]
+        f_snippets = ["stmt1();", "inserted();", "stmt3();"]
+        result = self.aligned_strategy.pair(v_snippets, f_snippets)
+
+        self.assertEqual(result.status, PairingStatus.SUCCESS)
+        self.assertEqual(len(result.pairs), 3)
+        self.assertEqual(result.pairs[0].vulnerable_code, "stmt1();")
+        self.assertEqual(result.pairs[0].fixed_code, "stmt1();")
+        self.assertEqual(result.pairs[1].vulnerable_code, "")
+        self.assertEqual(result.pairs[1].fixed_code, "inserted();")
+        self.assertEqual(result.pairs[2].vulnerable_code, "stmt3();")
+        self.assertEqual(result.pairs[2].fixed_code, "stmt3();")
 
 
 class TestExtractorRegistry(unittest.TestCase):
@@ -110,7 +138,7 @@ class TestExtractorRegistry(unittest.TestCase):
 
 
 class TestPipeline(unittest.TestCase):
-    def test_pipeline_multi_language_processing(self):
+    def test_pipeline_method_granularity(self):
         data = {
             "cve_id": ["CVE-1", "CVE-2"],
             "language": ["Python", "Go"],
@@ -127,13 +155,38 @@ class TestPipeline(unittest.TestCase):
             "granularity": ["file", "file"]
         }
         df = pd.DataFrame(data)
-        pipeline = CveMethodPipeline()
+        pipeline = CveMethodPipeline(granularity="method")
         output_df, stats = pipeline.process_dataframe(df)
 
         self.assertEqual(stats.total_input_rows, 2)
         self.assertEqual(stats.total_output_rows, 2)
         self.assertTrue((output_df["granularity"] == "method").all())
 
+    def test_pipeline_statement_granularity(self):
+        data = {
+            "cve_id": ["CVE-1"],
+            "language": ["Python"],
+            "vulnerable_code": [
+                "a = 1\n\nb = 2\n\nreturn a + b"
+            ],
+            "fixed_code": [
+                "a = 1\n\nb = 3\n\nreturn a + b"
+            ],
+            "file": ["test.py"],
+            "method": ["test"],
+            "granularity": ["method"]
+        }
+        df = pd.DataFrame(data)
+        pipeline = CveMethodPipeline(granularity="statement")
+        output_df, stats = pipeline.process_dataframe(df)
+
+        self.assertEqual(stats.total_input_rows, 1)
+        self.assertEqual(stats.total_output_rows, 3)
+        self.assertTrue((output_df["granularity"] == "statement").all())
+        self.assertEqual(output_df.iloc[1]["vulnerable_code"], "b = 2")
+        self.assertEqual(output_df.iloc[1]["fixed_code"], "b = 3")
+
 
 if __name__ == "__main__":
     unittest.main()
+
