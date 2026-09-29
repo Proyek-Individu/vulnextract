@@ -18,6 +18,16 @@ class JavascriptMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._language = Language(tree_sitter_javascript.language())
         self._parser = Parser(self._language)
+        self._statement_parser = self._parser
+        self._statement_function_types = (
+            "function_declaration",
+            "method_definition",
+            "arrow_function",
+            "function_expression",
+        )
+        # Guards against arrow functions with an expression body (e.g.
+        # `(a, b) => a - b`), where the body is not a block of statements.
+        self._statement_container_types = ("statement_block",)
 
     @property
     def language(self) -> str:

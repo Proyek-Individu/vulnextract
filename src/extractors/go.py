@@ -17,6 +17,9 @@ class GoMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._language = Language(tree_sitter_go.language())
         self._parser = Parser(self._language)
+        self._statement_parser = self._parser
+        self._statement_function_types = ("function_declaration", "method_declaration")
+        self._statement_unwrap_types = ("statement_list",)
 
     @property
     def language(self) -> str:

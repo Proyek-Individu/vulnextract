@@ -17,6 +17,8 @@ class CMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._language = Language(tree_sitter_c.language())
         self._parser = Parser(self._language)
+        self._statement_parser = self._parser
+        self._statement_function_types = ("function_definition",)
 
     @property
     def language(self) -> str:

@@ -117,11 +117,23 @@ class AlignedPairingStrategy(BasePairingStrategy):
             elif tag == "replace":
                 v_sub = v_list[i1:i2]
                 f_sub = f_list[j1:j2]
-                max_len = max(len(v_sub), len(f_sub))
-                for k in range(max_len):
-                    v_val = v_sub[k] if k < len(v_sub) else ""
-                    f_val = f_sub[k] if k < len(f_sub) else ""
-                    pairs.append(CodePair(vulnerable_code=v_val, fixed_code=f_val))
+                if len(v_sub) == len(f_sub):
+                    # Equal-length rewrite: positional pairing is meaningful,
+                    # each vulnerable statement maps to the fixed statement
+                    # at the same position.
+                    for v, f in zip(v_sub, f_sub):
+                        pairs.append(CodePair(vulnerable_code=v, fixed_code=f))
+                else:
+                    # Unequal statement counts mean this region was
+                    # restructured (e.g. several statements collapsed into
+                    # one, or one expanded into several) rather than
+                    # rewritten 1:1 — pairing by index would fabricate
+                    # misleading pairs with an empty counterpart on one
+                    # side. Keep the whole region as a single pair instead.
+                    pairs.append(CodePair(
+                        vulnerable_code="\n\n".join(v_sub),
+                        fixed_code="\n\n".join(f_sub)
+                    ))
 
             elif tag == "delete":
                 for v in v_list[i1:i2]:

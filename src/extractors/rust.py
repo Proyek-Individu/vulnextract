@@ -17,6 +17,8 @@ class RustMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._language = Language(tree_sitter_rust.language())
         self._parser = Parser(self._language)
+        self._statement_parser = self._parser
+        self._statement_function_types = ("function_item",)
 
     @property
     def language(self) -> str:
