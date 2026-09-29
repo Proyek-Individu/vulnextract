@@ -10,3 +10,4 @@ PROJECT_ROOT = SRC_DIR.parent
 
 DEFAULT_INPUT_FILE = PROJECT_ROOT / "data" / "input" / "cve_fix_pairs.csv"
 DEFAULT_OUTPUT_FILE = PROJECT_ROOT / "data" / "output" / "output_csv_fix_pairs.csv"
+DEFAULT_FEATURES_OUTPUT_FILE = PROJECT_ROOT / "data" / "output" / "output_statement_features.csv"

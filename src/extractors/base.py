@@ -32,6 +32,18 @@ class BaseMethodExtractor(ABC):
     # it so the actual statements are what gets returned.
     _statement_unwrap_types: Optional[Tuple[str, ...]] = None
 
+    def resolve_statement_parser(self, source_code: str) -> Optional[Any]:
+        """
+        Returns the tree-sitter Parser to use for `source_code`. Defaults to
+        the fixed `_statement_parser`; overridden by extractors that pick a
+        parser dynamically per-input (PhpMethodExtractor selects between its
+        two grammars based on whether a "<?php" tag is present). Used by
+        both this class's own extract_statements() and
+        src/features/tree_builder.py's hierarchical extractor, so parser
+        selection never drifts between the two pipelines.
+        """
+        return self._statement_parser
+
     @property
     @abstractmethod
     def language(self) -> str:
@@ -111,6 +123,31 @@ class BaseMethodExtractor(ABC):
         return [chunk.strip() for chunk in raw_chunks if chunk.strip()]
 
     @staticmethod
+    def find_enclosing_function(tree_root, function_node_types: Tuple[str, ...]):
+        """
+        Returns the first node under `tree_root` (pre-order, i.e. document
+        order) whose type is in `function_node_types`, or None if none is
+        found. Shared by the flat statement extractor below and by
+        src/features/tree_builder.py's hierarchical extractor, so both
+        pipelines select the identical function/method node for the same
+        input and their statement boundaries never drift apart.
+        """
+        func_node = None
+
+        def find_func(node) -> None:
+            nonlocal func_node
+            if func_node is not None:
+                return
+            if node.type in function_node_types:
+                func_node = node
+                return
+            for child in node.children:
+                find_func(child)
+
+        find_func(tree_root)
+        return func_node
+
+    @staticmethod
     def _extract_statements_via_ast(
         source_code: str,
         parser: Any,
@@ -151,19 +188,7 @@ class BaseMethodExtractor(ABC):
         source_bytes = source_code.encode("utf-8")
         tree = parser.parse(source_bytes)
 
-        func_node = None
-
-        def find_func(node) -> None:
-            nonlocal func_node
-            if func_node is not None:
-                return
-            if node.type in function_node_types:
-                func_node = node
-                return
-            for child in node.children:
-                find_func(child)
-
-        find_func(tree.root_node)
+        func_node = BaseMethodExtractor.find_enclosing_function(tree.root_node, function_node_types)
 
         def node_text(node) -> str:
             return source_bytes[node.start_byte:node.end_byte].decode(

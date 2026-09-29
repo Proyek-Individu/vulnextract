@@ -20,10 +20,14 @@ class PhpMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._parser_php_only = Parser(Language(tree_sitter_php.language_php_only()))
         self._parser_php = Parser(Language(tree_sitter_php.language_php()))
+        self._statement_function_types = self._STATEMENT_FUNCTION_TYPES
 
     @property
     def language(self) -> str:
         return "php"
+
+    def resolve_statement_parser(self, source_code: str):
+        return self._parser_php if "<?php" in source_code else self._parser_php_only
 
     def extract_methods(self, source_code: str) -> List[str]:
         if not isinstance(source_code, str) or not source_code.strip():
@@ -64,7 +68,7 @@ class PhpMethodExtractor(BaseMethodExtractor):
         if not isinstance(source_code, str) or not source_code.strip():
             return []
 
-        parser = self._parser_php if "<?php" in source_code else self._parser_php_only
+        parser = self.resolve_statement_parser(source_code)
 
         statements = self._extract_statements_via_ast(
             source_code,

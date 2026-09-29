@@ -36,42 +36,40 @@ pip install -r requirements.txt
 
 ## Menjalankan pipeline
 
-Entry point ada di [src/main.py](src/main.py):
+Entry point ada di [src/main.py](src/main.py). Ada dua mode:
 
 ```bash
-python src/main.py
+python src/main.py                    # mode "pairs" (default)
+python src/main.py -m features        # mode "features"
 ```
 
-Perintah di atas otomatis membaca `data/input/cve_fix_pairs.csv` dan menulis hasilnya ke `data/output/output_csv_fix_pairs.csv` dengan granularitas `statement` dan strategi pairing `aligned` (nilai default).
+### Mode `pairs` (default)
 
-### Opsi CLI
+Membaca `data/input/cve_fix_pairs.csv`, menulis ke `data/output/output_csv_fix_pairs.csv`. Satu baris output = satu pasangan teks `(vulnerable_code, fixed_code)` pada granularitas `statement` atau `method` — cocok untuk pendekatan diff/contrastive (mis. fine-tune model code-repair).
 
 | Opsi | Deskripsi | Default |
 |---|---|---|
 | `-i`, `--input` | Path file CSV input | `data/input/cve_fix_pairs.csv` |
-| `-o`, `--output` | Path file CSV output | `data/output/output_csv_fix_pairs.csv` |
-| `-g`, `--granularity` | `statement` atau `method` | `statement` |
-| `-s`, `--strategy` | Strategi pairing: `aligned` atau `strict` | `aligned` |
+| `-o`, `--output` | Path file CSV output | `data/output/output_csv_fix_pairs.csv` (mode `pairs`) / `data/output/output_statement_features.csv` (mode `features`) |
+| `-m`, `--mode` | `pairs` atau `features` | `pairs` |
+| `-g`, `--granularity` | `statement` atau `method` (hanya mode `pairs`) | `statement` |
+| `-s`, `--strategy` | Strategi pairing: `aligned` atau `strict` (hanya mode `pairs`) | `aligned` |
 | `-v`, `--verbose` | Aktifkan log debug | nonaktif |
 
-### Contoh
-
-Ekstraksi per statement (default):
-
-```bash
-python src/main.py -i data/input/cve_fix_pairs.csv -o data/output/output_csv_fix_pairs.csv
-```
-
-Ekstraksi per method, dengan pairing ketat (skip baris kalau jumlah method vulnerable ≠ fixed):
+Contoh — ekstraksi per method dengan pairing ketat:
 
 ```bash
 python src/main.py -g method -s strict
 ```
 
-Ke file custom, dengan log verbose:
+### Mode `features`
+
+Membaca CSV input yang sama, tapi menghasilkan **tabel fitur berlabel per statement** sesuai skema di [context.md](context.md) (kategori A–F: identitas/struktur, lokasi, teks, sink berbahaya, guard/validasi, struktural). Satu baris output = satu statement nyata (hierarkis — statement di dalam `if`/`for`/`try` dst dapat baris sendiri, terhubung lewat `parent_statement_id`), diberi `label` 1 kalau statement itu memang berubah antara versi vulnerable dan fixed (bukan sekadar "berada di method yang sama"), 0 kalau tidak.
+
+Dibatasi ke bahasa target [context.md](context.md): **Go, Python, JavaScript, TypeScript, PHP** — baris berbahasa Java/Rust/C otomatis dilewati (dihitung di `skipped_unsupported_language`).
 
 ```bash
-python src/main.py -i data/input/my_dataset.csv -o data/output/my_result.csv -v
+python src/main.py -m features -i data/input/cve_fix_pairs.csv -o data/output/output_statement_features.csv
 ```
 
 ## Format data
@@ -82,37 +80,50 @@ CSV dengan kolom minimal berikut (lihat [data/input/cve_fix_pairs.csv](data/inpu
 
 `cve_id, vulnerability_type, language, file, method, vulnerable_code, fixed_code, commit_hash, repo, commit_msg`
 
-Satu baris merepresentasikan satu method/fungsi (vulnerable dan fixed) dari satu commit perbaikan CVE. Nilai `language` harus salah satu dari: `go`, `python`, `javascript`, `typescript`, `php`, `java`, `rust`, `c` (case-insensitive; beberapa alias seperti `py`, `js`, `ts`, `golang`, `rs`, `cpp` juga didukung — lihat [src/extractors/__init__.py](src/extractors/__init__.py)).
+Satu baris merepresentasikan satu method/fungsi (vulnerable dan fixed) dari satu commit perbaikan CVE. Nilai `language` harus salah satu dari: `go`, `python`, `javascript`, `typescript`, `php`, `java`, `rust`, `c` (case-insensitive; beberapa alias seperti `py`, `js`, `ts`, `golang`, `rs`, `cpp` juga didukung — lihat [src/extractors/__init__.py](src/extractors/__init__.py)). Mode `features` hanya memproses 5 bahasa pertama.
 
 ### Output
 
-Kolom sama seperti input, ditambah kolom `granularity` (`method`/`statement`). Untuk granularitas `statement`, satu baris input method bisa menghasilkan banyak baris output — satu per statement yang berhasil dipasangkan antara versi vulnerable dan fixed.
+**Mode `pairs`**: kolom sama seperti input, ditambah `granularity` (`method`/`statement`). Satu baris input method bisa menghasilkan banyak baris output.
+
+**Mode `features`**: kolom traceability (`cve_id`, `vulnerability_type`, `commit_hash`, `repo`) + seluruh kolom kategori A–F dari context.md (`statement_id`, `parent_statement_id`, `nesting_depth`, `statement_type`, `parent_block_type`, `line_start`, `line_end`, `raw_text`, `token_count`, `is_db_query`, `guard_count`, `is_compound`, dst.) + `label`.
 
 ## Menjalankan test
 
 ```bash
-python -m unittest tests.test_pipeline -v
+python -m unittest tests.test_pipeline tests.test_features -v
 ```
 
 ## Struktur proyek
 
 ```
 src/
-  main.py            # CLI entry point
-  config.py          # path default input/output
-  pipeline.py         # orkestrasi: baca CSV -> extract -> pairing -> tulis CSV
-  models.py           # dataclass/enum (CodePair, PairingResult, PipelineStats)
-  extractors/          # satu extractor tree-sitter per bahasa
-  strategies/pairing.py # strategi pairing vulnerable<->fixed (aligned/strict)
+  main.py                # CLI entry point (mode "pairs" / "features")
+  config.py               # path default input/output
+  pipeline.py              # mode "pairs": baca CSV -> extract -> pairing -> tulis CSV
+  feature_pipeline.py      # mode "features": baca CSV -> tree -> label -> extract fitur -> tulis CSV
+  models.py                # dataclass/enum (CodePair, PairingResult, PipelineStats)
+  extractors/               # satu extractor tree-sitter per bahasa (dipakai kedua mode)
+  strategies/pairing.py      # strategi pairing vulnerable<->fixed (aligned/strict), mode "pairs"
+  features/
+    models.py                 # StatementRecord (baris output mode "features"), FeaturePipelineStats
+    tree_builder.py            # ekstraksi hierarkis (StatementNode) via AST
+    labeler.py                 # tree-diff rekursif utk label 0/1 per statement
+    feature_extractor.py        # StatementNode -> StatementRecord (kategori A-F)
+    langs/                       # skema per bahasa: taksonomi node, kamus sink (D) & sanitizer (E)
 tests/
-  test_pipeline.py    # unit test extractor, pairing, dan pipeline
+  test_pipeline.py         # unit test mode "pairs"
+  test_features.py         # unit test mode "features"
 data/
-  input/               # dataset CVE mentah
-  output/              # hasil ekstraksi
-context.md             # panduan kolom fitur (rencana pengembangan lanjutan)
+  input/                  # dataset CVE mentah
+  output/                 # hasil ekstraksi (kedua mode)
+context.md                # panduan skema kolom fitur mode "features"
 ```
 
-## Catatan
+## Catatan & keterbatasan yang diketahui
 
-- `extract_statements` pada tiap extractor mengambil statement langsung dari body function/method via AST (bukan split baris kosong), sehingga hasilnya stabil walau gaya format (jumlah baris kosong) berbeda antara versi vulnerable dan fixed.
-- Kolom-kolom fitur keamanan (sink berbahaya, guard, dsb.) yang dijelaskan di [context.md](context.md) masih berupa rencana/panduan — belum diimplementasikan di pipeline ini.
+- `extract_statements`/`tree_builder` mengambil statement dari body function/method via AST (bukan split baris kosong), sehingga hasilnya stabil walau gaya format (jumlah baris kosong) berbeda antara versi vulnerable dan fixed.
+- **Skema labeling mode `features`** hanya menandai statement yang benar-benar berubah di diff (bukan seluruh statement di method vulnerable). Konsekuensinya: CVE bertipe "missing validation" (fix-nya murni menambah statement baru, tidak mengubah statement yang sudah ada) akan menghasilkan **nol** baris berlabel 1 untuk method tersebut — karakteristik dari skema, bukan bug.
+- Kamus signature kategori D (sink berbahaya) dan E (sanitizer) di `features/langs/*.py` ditranskripsi langsung dari nama fungsi yang disebut di context.md — per catatan context.md sendiri, kamus ini akan selalu tidak lengkap (mis. verb query-builder ORM lain di luar `.Query`/`.Exec`/`.QueryRow` belum tercakup untuk Go).
+- `call_target_kind` (stdlib/third_party/user_defined) memakai daftar prefix kecil per bahasa sebagai pendekatan kasar — bukan resolusi import sungguhan.
+- `guard_count`/`sanitization_call_detected` adalah heuristik pendekatan taint tracking, bukan taint tracking sesungguhnya (lihat context.md).
