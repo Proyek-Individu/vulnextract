@@ -1,4 +1,6 @@
 pandas
+pyyaml
+python-dotenv
 tree-sitter
 tree-sitter-java
 tree-sitter-python

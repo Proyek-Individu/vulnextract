@@ -1,0 +1,24 @@
+# ============================================================
+# Konfigurasi global vulnextract
+# ============================================================
+# Ubah nilai di sini supaya tidak perlu mengetik path/opsi lewat
+# argumen CLI setiap kali menjalankan `python src/main.py`.
+# File ini aman di-commit ke git — isinya bukan rahasia.
+# Untuk nilai rahasia (API key, token, dsb.), pakai .env (lihat .env.example).
+
+# Path lokal ATAU URL (http/https) ke file CSV input. pandas.read_csv
+# mendukung keduanya, jadi boleh diarahkan ke file lokal maupun link publik.
+input_file: data/input/cve_fix_pairs.csv
+
+# Path file output per mode.
+output:
+  pairs: data/output/output_csv_fix_pairs.csv
+  features: data/output/output_statement_features.csv
+
+# Default khusus mode "pairs".
+pairs:
+  granularity: statement   # statement | method
+  strategy: aligned        # aligned | strict
+
+# Aktifkan log debug secara default (bisa dioverride lewat -v saat pakai CLI flag).
+verbose: false

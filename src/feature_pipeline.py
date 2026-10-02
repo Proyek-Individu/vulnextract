@@ -26,6 +26,7 @@ from typing import Dict, List, Tuple, Union
 
 import pandas as pd
 
+from .config import is_url
 from .features.feature_extractor import extract_features
 from .features.labeler import label_statements
 from .features.langs import get_schema
@@ -47,9 +48,10 @@ class FeatureExtractionPipeline:
         input_path: Union[str, Path],
         output_path: Union[str, Path] = None,
     ) -> Tuple[pd.DataFrame, FeaturePipelineStats]:
-        input_path = Path(input_path)
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found at: {input_path}")
+        if not is_url(str(input_path)):
+            input_path = Path(input_path)
+            if not input_path.exists():
+                raise FileNotFoundError(f"Input file not found at: {input_path}")
 
         logger.info(f"Loading input dataset from {input_path}...")
         df = pd.read_csv(input_path)
