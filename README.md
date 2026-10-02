@@ -64,9 +64,19 @@ python src/main.py -g method -s strict
 
 ### Mode `features`
 
-Membaca CSV input yang sama, tapi menghasilkan **tabel fitur berlabel per statement** sesuai skema di [context.md](context.md) (kategori A–F: identitas/struktur, lokasi, teks, sink berbahaya, guard/validasi, struktural). Satu baris output = satu statement nyata (hierarkis — statement di dalam `if`/`for`/`try` dst dapat baris sendiri, terhubung lewat `parent_statement_id`), diberi `label` 1 kalau statement itu memang berubah antara versi vulnerable dan fixed (bukan sekadar "berada di method yang sama"), 0 kalau tidak.
+Membaca CSV input yang sama, tapi menghasilkan **tabel fitur berlabel per statement** sesuai skema di [context.md](context.md) (kategori A–F: identitas/struktur, lokasi, teks, sink berbahaya, guard/validasi, struktural). Satu baris output = satu statement nyata (hierarkis — statement di dalam `if`/`for`/`try` dst dapat baris sendiri, terhubung lewat `parent_statement_id`).
 
 Dibatasi ke bahasa target [context.md](context.md): **Go, Python, JavaScript, TypeScript, PHP** — baris berbahasa Java/Rust/C otomatis dilewati (dihitung di `skipped_unsupported_language`).
+
+Setiap baris input CSV bisa menyumbang statement ke **dua kelas** (kolom `label`: 1 = vulnerable, 0 = aman), dibedakan lewat kolom `origin`:
+
+| `origin` | Sumber | `label` | `vulnerability_type` |
+|---|---|---|---|
+| `vulnerable` | `vulnerable_code`, di-diff ke `fixed_code` | 1 kalau statement itu memang berubah di fix, 0 kalau tidak | nilai asli dari CSV |
+| `fixed` | `fixed_code` dari baris yang memang berubah — ini kode hasil perbaikan | selalu 0 | dipaksa `"none"` (bukan instance vulnerability) |
+| `unchanged` | baris di mana `vulnerable_code == fixed_code` sejak awal (aman dari awal) — diekstrak sekali saja, tidak dobel dengan `vulnerable`/`fixed` | selalu 0 | dipaksa `"none"` |
+
+Ini supaya dataset tidak cuma berisi kelas vulnerable — kelas aman/negative diambil dari kode hasil perbaikan itu sendiri (bukan cuma sisa statement yang kebetulan tidak berubah di method vulnerable), ditambah baris yang memang sudah aman sejak awal kalau ada di data mentah.
 
 ```bash
 python src/main.py -m features -i data/input/cve_fix_pairs.csv -o data/output/output_statement_features.csv
@@ -86,7 +96,7 @@ Satu baris merepresentasikan satu method/fungsi (vulnerable dan fixed) dari satu
 
 **Mode `pairs`**: kolom sama seperti input, ditambah `granularity` (`method`/`statement`). Satu baris input method bisa menghasilkan banyak baris output.
 
-**Mode `features`**: kolom traceability (`cve_id`, `vulnerability_type`, `commit_hash`, `repo`) + seluruh kolom kategori A–F dari context.md (`statement_id`, `parent_statement_id`, `nesting_depth`, `statement_type`, `parent_block_type`, `line_start`, `line_end`, `raw_text`, `token_count`, `is_db_query`, `guard_count`, `is_compound`, dst.) + `label`.
+**Mode `features`**: kolom traceability (`cve_id`, `vulnerability_type`, `commit_hash`, `repo`, `origin`) + seluruh kolom kategori A–F dari context.md (`statement_id`, `parent_statement_id`, `nesting_depth`, `statement_type`, `parent_block_type`, `line_start`, `line_end`, `raw_text`, `token_count`, `is_db_query`, `guard_count`, `is_compound`, dst.) + `label`. Lihat tabel `origin` di atas untuk arti `vulnerable`/`fixed`/`unchanged`.
 
 ## Menjalankan test
 
@@ -127,3 +137,5 @@ context.md                # panduan skema kolom fitur mode "features"
 - Kamus signature kategori D (sink berbahaya) dan E (sanitizer) di `features/langs/*.py` ditranskripsi langsung dari nama fungsi yang disebut di context.md — per catatan context.md sendiri, kamus ini akan selalu tidak lengkap (mis. verb query-builder ORM lain di luar `.Query`/`.Exec`/`.QueryRow` belum tercakup untuk Go).
 - `call_target_kind` (stdlib/third_party/user_defined) memakai daftar prefix kecil per bahasa sebagai pendekatan kasar — bukan resolusi import sungguhan.
 - `guard_count`/`sanitization_call_detected` adalah heuristik pendekatan taint tracking, bukan taint tracking sesungguhnya (lihat context.md).
+- `statement_id` menyertakan index baris CSV di dalam prefix-nya — beberapa baris di `data/input/cve_fix_pairs.csv` punya `(repo, file, method, commit_hash)` yang identik (termasuk duplikat literal, mis. `CVE-2026-47144`/`CVE-2026-48089`), jadi index baris dipakai sebagai pembeda supaya `statement_id` tetap unik.
+- Dataset saat ini (104 baris) belum punya baris `vulnerable_code == fixed_code` (origin `unchanged`) — penanganannya sudah diimplementasikan dan diuji ([tests/test_features.py](tests/test_features.py)), tapi baru benar-benar terpakai kalau data mentah ke depan menambahkan baris semacam itu.
