@@ -1,0 +1,135 @@
+# ============================================================
+# Konfigurasi global vulnextract
+# ============================================================
+# Ubah nilai di sini supaya tidak perlu mengetik path/opsi lewat
+# argumen CLI setiap kali menjalankan `python src/main.py`.
+# File ini aman di-commit ke git — isinya bukan rahasia.
+# Untuk nilai rahasia (API key, token, dsb.), pakai .env (lihat .env.example).
+
+# Path lokal ATAU URL (http/https) ke file CSV input. pandas.read_csv
+# mendukung keduanya, jadi boleh diarahkan ke file lokal maupun link publik.
+input_file: data/input/cve_fix_pairs.csv
+
+# Path file output per mode.
+output:
+  pairs: data/output/output_csv_fix_pairs.csv
+  features: data/output/output_statement_features.csv
+
+# Default khusus mode "pairs".
+pairs:
+  granularity: statement   # statement | method
+  strategy: aligned        # aligned | strict
+
+# Aktifkan log debug secara default (bisa dioverride lewat -v saat pakai CLI flag).
+verbose: false
+
+# ------------------------------------------------------------
+# Mode "classify" (menu 3): klasifikasi ML + XAI,
+# membandingkan data MENTAH vs data hasil SPLIT (mode features).
+# ------------------------------------------------------------
+classification:
+  # Data mentah: CSV pasangan vulnerable/fixed per method (sama seperti input_file).
+  raw_input: data/input/cve_fix_pairs.csv
+  # Data hasil split (output menu 2). Kalau file belum ada, menu 3 otomatis
+  # menjalankan ekstraksi features dulu dari raw_input.
+  split_input: data/output/output_statement_features.csv
+  # Tiap run membuat subfolder run_YYYYmmdd_HHMMSS di sini.
+  output_dir: data/output/classification
+  output_formats: [xlsx, csv]   # xlsx | csv | keduanya
+
+  # Daftar model yang dilatih & dibandingkan (semua dijalankan berurutan).
+  # - name   : alias bawaan -> random_forest, extra_trees, decision_tree,
+  #            gradient_boosting, hist_gradient_boosting, adaboost,
+  #            logistic_regression, svm, linear_svm, knn, naive_bayes, mlp,
+  #            xgboost (pip install xgboost), lightgbm (pip install lightgbm)
+  # - class  : ATAU path kelas sklearn-compatible apa pun, mis.
+  #            sklearn.ensemble.BaggingClassifier
+  # - params : hyperparameter (menimpa default bawaan alias; null = hapus default)
+  # - label  : nama tampilan di laporan (wajib unik kalau 1 model dipakai 2x)
+  # - scale  : true/false -> StandardScaler sebelum fit (default true untuk
+  #            logistic_regression, svm, linear_svm, knn, mlp)
+  models:
+    - name: random_forest
+      params:
+        n_estimators: 300
+        class_weight: balanced
+    # - name: logistic_regression
+    # - name: gradient_boosting
+    # - name: xgboost
+    #   params: {n_estimators: 300, max_depth: 6, scale_pos_weight: 10}
+    # - label: rf_dalam
+    #   name: random_forest
+    #   params: {n_estimators: 500, max_depth: 20, min_samples_leaf: 2}
+
+  split:
+    test_size: 0.2       # porsi data test (0-1). Dihitung per GRUP, bukan per baris.
+    cv_folds: 0          # 0 = holdout sekali (pakai test_size); >=2 = k-fold CV
+    random_state: 42
+    # Unit grup supaya versi vulnerable & fixed dari method yang sama tidak
+    # terpisah ke train/test (mencegah kebocoran data):
+    #   method = repo+file+method (default; juga menyatukan baris duplikat)
+    #   row    = per baris CSV mentah
+    #   cve    = per cve_id
+    group_by: method
+
+  # true = data mentah dipersempit ke method yang juga ada di data split
+  # (mode features hanya mendukung Go/Python/JS/TS/PHP), supaya test set
+  # kedua pendekatan identik di level method -> perbandingan adil.
+  align_samples: true
+  threshold: 0.5             # ambang skor -> label 1 (vulnerable)
+  method_aggregation: max    # skor statement -> skor method: max | mean
+
+  # Fitur pendekatan "raw": TF-IDF token kode method utuh.
+  raw_features:
+    max_features: 2000
+    ngram_range: [1, 2]
+    min_df: 1
+
+  # Fitur pendekatan "split": kolom A-F hasil mode features.
+  # Kolom ID/lokasi & proxy label (origin, vulnerability_type, cve_id, ...)
+  # otomatis dibuang walau dicantumkan di sini.
+  split_features:
+    numeric:
+      - nesting_depth
+      - num_source_lines
+      - token_count
+      - char_length
+      - num_calls
+      - is_process_exec
+      - is_db_query
+      - is_dynamic_eval
+      - is_deserialization
+      - is_file_io
+      - is_network_call
+      - is_output_render
+      - uses_string_concat_or_format
+      - num_variables_defined
+      - num_variables_used
+      - uses_only_literals
+      - guard_count
+      - inside_error_handler
+      - is_error_handling_statement
+      - sanitization_call_detected
+      - is_compound
+      - num_direct_children
+      - cyclomatic_contribution
+    categorical:     # di-one-hot; tambahkan top_level_call_name kalau mau
+      - statement_type
+      - parent_block_type
+      - call_target_kind
+      - language
+    raw_text_tfidf: false     # true = tambah TF-IDF dari raw_text statement
+    tfidf_max_features: 500
+
+  xai:
+    enabled: true
+    top_k: 20                    # jumlah fitur teratas di plot & penjelasan lokal
+    shap: true                   # butuh `pip install shap`; dilewati otomatis jika tidak ada
+    shap_max_samples: 300        # maks. sampel test yang dihitung SHAP-nya
+    shap_kernel_fallback: false  # KernelExplainer utk model non-tree/non-linear (lambat)
+    permutation: true
+    permutation_repeats: 5
+    permutation_scoring: average_precision   # average_precision | roc_auc | f1 | accuracy | balanced_accuracy
+    permutation_max_features: 100            # kalau fitur lebih banyak, hanya top-N (berdasar SHAP/native)
+    local_explanations: 10       # jumlah sampel test berskor tertinggi yang dijelaskan per model
+    save_plots: true             # PNG bar chart importance per approach/model
