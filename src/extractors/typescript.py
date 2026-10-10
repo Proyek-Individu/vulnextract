@@ -29,6 +29,9 @@ class TypescriptMethodExtractor(BaseMethodExtractor):
     def __init__(self) -> None:
         self._language = Language(tree_sitter_typescript.language_typescript())
         self._parser = Parser(self._language)
+        self._statement_parser = self._parser
+        self._statement_function_types = self._STATEMENT_FUNCTION_TYPES
+        self._statement_container_types = self._STATEMENT_CONTAINER_TYPES
 
     @property
     def language(self) -> str:
