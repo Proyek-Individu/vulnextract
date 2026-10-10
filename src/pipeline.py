@@ -3,6 +3,7 @@ Core Data Pipeline for CVE Code Pair Processing (Statement-level and Method-leve
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -13,6 +14,15 @@ from .models import PairingStatus, PipelineStats
 from .strategies import AlignedPairingStrategy, BasePairingStrategy, StrictZipPairingStrategy
 
 logger = logging.getLogger(__name__)
+
+_WS_RE = re.compile(r"\s+")
+
+
+def _normalize(text) -> str:
+    """Collapse all whitespace runs to a single space for equality comparison."""
+    if not isinstance(text, str):
+        return ""
+    return _WS_RE.sub(" ", text).strip()
 
 
 class CveMethodPipeline:
@@ -131,6 +141,10 @@ class CveMethodPipeline:
                     new_row["vulnerable_code"] = pair.vulnerable_code
                     new_row["fixed_code"] = pair.fixed_code
                     new_row["granularity"] = self.granularity
+                    new_row["is_same"] = (
+                        _normalize(pair.vulnerable_code)
+                        == _normalize(pair.fixed_code)
+                    )
                     output_rows.append(new_row)
 
         output_df = pd.DataFrame(output_rows)
