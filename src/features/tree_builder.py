@@ -116,9 +116,9 @@ def build_statement_tree(
             fixed_code — the whole method text, not a pre-split snippet).
         language: canonical language key (as ExtractorRegistry knows it).
         schema: this language's LanguageFeatureSchema (see langs/*.py).
-        id_prefix: `{repo}:{file}:{function}` per context.md's own
-            statement_id scheme — line range + a disambiguating counter are
-            appended per emitted statement.
+        id_prefix: `{cve_id}:{commit_hash[:8]}:{repo}:{file}:{function}` —
+            line range + a per-tree counter are appended to each statement,
+            and the same generated IDs link parents to their children.
 
     Returns:
         (roots, source_bytes): the top-level (nesting_depth=0) StatementNodes

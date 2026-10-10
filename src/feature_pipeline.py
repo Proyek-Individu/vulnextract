@@ -24,6 +24,17 @@ from .features.tree_builder import build_statement_tree, flatten
 
 logger = logging.getLogger(__name__)
 
+DUPLICATE_INPUT_KEY_COLUMNS = (
+    "cve_id",
+    "commit_hash",
+    "language",
+    "file",
+    "method",
+    "vulnerable_code",
+    "fixed_code",
+)
+_MISSING_DUPLICATE_KEY_VALUE = object()
+
 
 class FeatureExtractionPipeline:
     """
@@ -57,6 +68,7 @@ class FeatureExtractionPipeline:
     def process_dataframe(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, FeaturePipelineStats]:
         stats = FeaturePipelineStats(total_input_rows=len(df))
         rows: List[dict] = []
+        seen_input_keys = set()
 
         for index, row in df.iterrows():
             language = str(row.get("language", "")).strip().lower()
@@ -72,6 +84,19 @@ class FeatureExtractionPipeline:
                 stats.skipped_no_code += 1
                 continue
 
+            duplicate_key_values = []
+            for column in DUPLICATE_INPUT_KEY_COLUMNS:
+                value = row.get(column)
+                duplicate_key_values.append(
+                    _MISSING_DUPLICATE_KEY_VALUE if pd.isna(value) else value
+                )
+            duplicate_key = tuple(duplicate_key_values)
+            if duplicate_key in seen_input_keys:
+                stats.skipped_duplicate_input += 1
+                logger.debug("Skipping duplicate feature input row %s", index)
+                continue
+            seen_input_keys.add(duplicate_key)
+
             row_meta: Dict[str, str] = {
                 "cve_id": str(row.get("cve_id", "") or ""),
                 "vulnerability_type": str(row.get("vulnerability_type", "") or ""),
@@ -80,7 +105,13 @@ class FeatureExtractionPipeline:
                 "file": str(row.get("file", "") or ""),
                 "method": str(row.get("method", "") or ""),
             }
-            id_prefix = f"{row_meta['repo']}:{row_meta['file']}:{row_meta['method']}"
+            commit_hash = row.get("commit_hash", "")
+            commit_hash = "" if pd.isna(commit_hash) else str(commit_hash).strip()
+            commit_id = commit_hash[:8] if commit_hash else "nohash"
+            id_prefix = (
+                f"{row_meta['cve_id']}:{commit_id}:{row_meta['repo']}:"
+                f"{row_meta['file']}:{row_meta['method']}"
+            )
 
             try:
                 v_roots, v_source = build_statement_tree(vulnerable_code, language, schema, id_prefix)
@@ -103,6 +134,14 @@ class FeatureExtractionPipeline:
 
             for node in flat_nodes:
                 record = extract_features(node, id_to_node, schema, language, row_meta)
+                if record.label == 0:
+                    record.vulnerability_type = "none"
+                else:
+                    vulnerability_type = row.get("vulnerability_type", "")
+                    if pd.isna(vulnerability_type) or not str(vulnerability_type).strip():
+                        record.vulnerability_type = "unknown"
+                    else:
+                        record.vulnerability_type = str(vulnerability_type)
                 rows.append(record.__dict__)
                 if record.label:
                     stats.total_positive_labels += 1

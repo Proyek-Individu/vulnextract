@@ -84,4 +84,5 @@ class FeaturePipelineStats:
     total_positive_labels: int = 0
     skipped_unsupported_language: int = 0
     skipped_no_code: int = 0
+    skipped_duplicate_input: int = 0
     skipped_extraction_failure: int = 0
