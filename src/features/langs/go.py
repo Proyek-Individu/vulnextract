@@ -135,10 +135,14 @@ SINK_FLAGS = {
     "is_output_render": SinkFlag(exact=frozenset({"template.HTML"})),
 }
 
-# Category E sanitizer signatures. Go's html/template auto-escaping is
-# implicit (not an explicit call) — context.md flags this as a limitation;
-# left empty here rather than guessed.
-SANITIZER_NAMES = SinkFlag()
+# Category E sanitizer signatures. These functions escape values for
+# specific output contexts; a match is a heuristic, not proof that the
+# escaped value is the one eventually used by a sink.
+SANITIZER_NAMES = SinkFlag(exact=frozenset({
+    "html.EscapeString",
+    "template.HTMLEscapeString",
+    "template.JSEscapeString",
+}))
 
 CONCAT_OR_FORMAT_NODE_TYPES = frozenset({"binary_expression"})
 FORMAT_CALL_SIGNATURE = SinkFlag(exact=frozenset({"fmt.Sprintf", "fmt.Sprint", "fmt.Sprintln", "fmt.Errorf"}))

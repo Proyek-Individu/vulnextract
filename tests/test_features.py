@@ -69,6 +69,17 @@ class TestTreeBuilder(unittest.TestCase):
         self.assertEqual(len(roots), 1)
         self.assertEqual(roots[0].statement_type, "throw_raise")
 
+    def test_typescript_tree_builder_and_labeler(self):
+        vulnerable = "function f(value: string) { process(value); }"
+        fixed = "function f(value: string) { processSafely(value); }"
+        roots, v_src, _schema = _tree("typescript", vulnerable)
+        fixed_roots, f_src, _schema = _tree("typescript", fixed)
+
+        self.assertEqual(len(roots), 1)
+        self.assertEqual(roots[0].statement_type, "call_expr")
+        label_statements(roots, fixed_roots, v_src, f_src)
+        self.assertEqual(roots[0].label, 1)
+
     def test_unsupported_language_has_no_schema(self):
         # java/rust/c extractors exist (src/extractors/), but context.md scopes
         # this feature pipeline to Go/Python/JS/TS/PHP only — no schema for them.
@@ -161,6 +172,65 @@ class TestLabeler(unittest.TestCase):
 
 
 class TestFeatureExtractor(unittest.TestCase):
+    def test_sink_and_sanitizer_flags_across_languages(self):
+        cases = [
+            ("go", "is_process_exec", 'func f() { exec.Command("sh") }'),
+            ("go", "is_db_query", 'func f() { db.Query("SELECT 1") }'),
+            ("go", "is_deserialization", "func f() { json.Unmarshal(data, &value) }"),
+            ("go", "is_file_io", 'func f() { os.Open("file.txt") }'),
+            ("go", "is_network_call", 'func f() { http.Get("https://example.com") }'),
+            ("go", "is_output_render", 'func f() { template.HTML(value) }'),
+            ("go", "sanitization_call_detected", 'func f() { html.EscapeString(value) }'),
+            ("go", "sanitization_call_detected", 'func f() { template.HTMLEscapeString(value) }'),
+            ("go", "sanitization_call_detected", 'func f() { template.JSEscapeString(value) }'),
+            ("python", "is_process_exec", "def f():\n    subprocess.run(['echo', 'ok'])\n"),
+            ("python", "is_db_query", "def f():\n    cursor.execute(query)\n"),
+            ("python", "is_dynamic_eval", "def f():\n    eval(code)\n"),
+            ("python", "is_deserialization", "def f():\n    pickle.loads(data)\n"),
+            ("python", "is_file_io", "def f():\n    open(path)\n"),
+            ("python", "is_network_call", "def f():\n    requests.get(url)\n"),
+            ("python", "is_output_render", "def f():\n    render_template_string(template)\n"),
+            ("python", "sanitization_call_detected", "def f():\n    shlex.quote(value)\n"),
+            ("javascript", "is_process_exec", 'function f() { child_process.exec("echo ok"); }'),
+            ("javascript", "is_db_query", 'function f() { db.query("SELECT 1"); }'),
+            ("javascript", "is_dynamic_eval", "function f(code) { eval(code); }"),
+            ("javascript", "is_deserialization", "function f(data) { JSON.parse(data); }"),
+            ("javascript", "is_file_io", "function f(path) { fs.readFile(path); }"),
+            ("javascript", "is_network_call", "function f(url) { fetch(url); }"),
+            ("javascript", "is_output_render", "function f(el, input) { el.innerHTML = input; }"),
+            ("javascript", "sanitization_call_detected", "function f(input) { DOMPurify.sanitize(input); }"),
+            ("typescript", "is_process_exec", 'function f() { child_process.exec("echo ok"); }'),
+            ("typescript", "is_db_query", 'function f() { db.query("SELECT 1"); }'),
+            ("typescript", "is_dynamic_eval", "function f(code: string) { eval(code); }"),
+            ("typescript", "is_deserialization", "function f(data: string) { JSON.parse(data); }"),
+            ("typescript", "is_file_io", "function f(path: string) { fs.readFile(path); }"),
+            ("typescript", "is_network_call", "function f(url: string) { fetch(url); }"),
+            ("typescript", "is_output_render", "function f(el: Element, input: string) { el.innerHTML = input; }"),
+            ("typescript", "sanitization_call_detected", "function f(input: string) { DOMPurify.sanitize(input); }"),
+            ("php", "is_process_exec", '<?php function f() { shell_exec("echo ok"); }'),
+            ("php", "is_db_query", '<?php function f($conn, $sql) { mysqli_query($conn, $sql); }'),
+            ("php", "is_dynamic_eval", "<?php function f($code) { eval($code); }"),
+            ("php", "is_deserialization", "<?php function f($data) { unserialize($data); }"),
+            ("php", "is_file_io", "<?php function f($path) { fopen($path, 'r'); }"),
+            ("php", "is_network_call", "<?php function f($url) { curl_exec($url); }"),
+            ("php", "is_output_render", "<?php function f($input) { echo $input; }"),
+            ("php", "sanitization_call_detected", "<?php function f($input) { htmlspecialchars($input); }"),
+        ]
+
+        for language, flag_name, source in cases:
+            with self.subTest(language=language, flag=flag_name, source=source):
+                roots, _src, schema = _tree(language, source)
+                assert schema is not None
+                id_to_node = {node.statement_id: node for node in flatten(roots)}
+                records = [
+                    extract_features(node, id_to_node, schema, language, {})
+                    for node in flatten(roots)
+                ]
+                self.assertTrue(
+                    any(getattr(record, flag_name) for record in records),
+                    f"{language} did not set {flag_name} for {source!r}",
+                )
+
     def test_sink_and_concat_flags_on_cve_anchor(self):
         v_roots, v_src, schema = _tree("go", """func (d validateJsonPathQuery) toSQL() (string, []interface{}) {
 \tsb.Select(fmt.Sprintf("JSON_VALUE('{}', '%s')", sqlbuilder.Escape(d.jsonPath)))
