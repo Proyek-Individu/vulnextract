@@ -253,6 +253,90 @@ class TestFeatureExtractor(unittest.TestCase):
 
 
 class TestFeaturePipeline(unittest.TestCase):
+    @staticmethod
+    def _small_python_input(cve_id="CVE-TEST", **overrides):
+        row = {
+            "cve_id": cve_id,
+            "vulnerability_type": "SQL Injection",
+            "language": "python",
+            "file": "sample.py",
+            "method": "f",
+            "vulnerable_code": "def f(value):\n    if value:\n        sink(value)\n",
+            "fixed_code": "def f(value):\n    if value:\n        sink(value)\n",
+            "commit_hash": "0123456789abcdef",
+            "repo": "https://example.com/repo",
+        }
+        row.update(overrides)
+        return row
+
+    def test_duplicate_input_row_is_skipped(self):
+        row = self._small_python_input()
+        output_df, stats = FeatureExtractionPipeline().process_dataframe(pd.DataFrame([row, row]))
+
+        self.assertEqual(stats.skipped_duplicate_input, 1)
+        self.assertEqual(len(output_df), 2)
+        self.assertTrue(output_df["statement_id"].is_unique)
+
+    def test_distinct_cves_with_same_code_keep_distinct_statement_ids(self):
+        rows = [
+            self._small_python_input(cve_id="CVE-ONE"),
+            self._small_python_input(cve_id="CVE-TWO"),
+        ]
+        output_df, stats = FeatureExtractionPipeline().process_dataframe(pd.DataFrame(rows))
+
+        self.assertEqual(stats.skipped_duplicate_input, 0)
+        self.assertEqual(len(output_df), 4)
+        self.assertEqual(output_df["cve_id"].nunique(), 2)
+        self.assertTrue(output_df["statement_id"].is_unique)
+
+        statement_ids = set(output_df["statement_id"])
+        parents = output_df["parent_statement_id"].dropna()
+        self.assertTrue(set(parents).issubset(statement_ids))
+        self.assertTrue((output_df["parent_statement_id"] == "").sum() == 0)
+
+    def test_vulnerability_type_follows_statement_label_end_to_end(self):
+        vulnerable_code = (
+            "def f(value):\n"
+            "    if value:\n"
+            "        sink('vulnerable')\n"
+            "    return value\n"
+        )
+        fixed_code = (
+            "def f(value):\n"
+            "    if value:\n"
+            "        sink('fixed')\n"
+            "    return value\n"
+        )
+        data = {
+            "cve_id": ["CVE-KNOWN", "CVE-NAN", "CVE-BLANK"],
+            "vulnerability_type": ["SQL Injection", float("nan"), ""],
+            "language": ["python", "python", "python"],
+            "file": ["f.py", "f.py", "f.py"],
+            "method": ["f", "f", "f"],
+            "vulnerable_code": [vulnerable_code] * 3,
+            "fixed_code": [fixed_code] * 3,
+            "commit_hash": ["abc123"] * 3,
+            "repo": ["https://example.com/r"] * 3,
+        }
+
+        output_df, _stats = FeatureExtractionPipeline().process_dataframe(pd.DataFrame(data))
+
+        known = output_df[output_df["cve_id"] == "CVE-KNOWN"]
+        self.assertEqual(set(known.loc[known["label"] == 1, "vulnerability_type"]), {"SQL Injection"})
+        self.assertTrue((known.loc[known["label"] == 0, "vulnerability_type"] == "none").all())
+
+        for cve_id in ("CVE-NAN", "CVE-BLANK"):
+            with self.subTest(cve_id=cve_id):
+                rows = output_df[output_df["cve_id"] == cve_id]
+                self.assertEqual(set(rows.loc[rows["label"] == 1, "vulnerability_type"]), {"unknown"})
+                self.assertTrue((rows.loc[rows["label"] == 0, "vulnerability_type"] == "none").all())
+
+        compound = known[known["statement_type"] == "if"].iloc[0]
+        self.assertEqual(compound["label"], 0)
+        changed_child = known[known["parent_statement_id"] == compound["statement_id"]]
+        self.assertEqual(set(changed_child["label"]), {1})
+        self.assertEqual(set(changed_child["vulnerability_type"]), {"SQL Injection"})
+
     def test_process_dataframe_end_to_end(self):
         data = {
             "cve_id": ["CVE-TEST-1"],

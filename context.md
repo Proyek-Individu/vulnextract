@@ -15,9 +15,14 @@
 
 ## A. Identitas & Relasi Struktural
 
+### `vulnerability_type`
+**Definisi:** Jenis kerentanan dari CSV input untuk statement yang berubah (`label = 1`); bernilai `none` untuk statement yang tidak berubah (`label = 0`).
+**Cara ekstraksi:** Ditetapkan setelah label vulnerable/fixed final. Jika `label = 1` tetapi nilai input kosong atau NaN, isi `unknown` agar tidak tertukar dengan statement berlabel 0.
+**Kenapa penting:** Menyimpan kelas kerentanan hanya pada statement yang berubah, sekaligus memberi nilai eksplisit (`none`) untuk statement yang tidak berubah.
+
 ### `statement_id`
 **Definisi:** ID unik per baris/statement.
-**Cara ekstraksi:** Gabungkan `repo:file_path:function_name:line_start-line_end` atau gunakan counter increment per file. Harus deterministik supaya bisa ditelusuri balik ke source.
+**Cara ekstraksi:** Gabungkan `cve_id:commit_hash[:8]:repo:file_path:function_name:line_start-line_end#n`, dengan `nohash` sebagai pengganti prefiks commit kalau hash kosong. `n` adalah counter statement per pohon fungsi. Prefix CVE dan commit menjaga ID berbeda untuk kode di lokasi yang sama pada perbaikan berbeda; ID induk yang direferensikan `parent_statement_id` memakai format dan prefix yang sama.
 **Kenapa penting:** Tanpa ini, hasil feature selection atau anomaly detection tidak bisa ditelusuri balik ke lokasi kode aslinya — krusial untuk validasi manual temuan.
 
 ### `parent_statement_id`
@@ -167,7 +172,7 @@ Kategori ini butuh informasi dari rantai `parent_statement_id`, bukan hanya stat
 
 ### `sanitization_call_detected`
 **Definisi:** Apakah ada pemanggilan fungsi sanitasi/escaping yang dikenal di rantai sebelum sink.
-**Cara ekstraksi:** Kamus fungsi sanitasi per bahasa — PHP: `htmlspecialchars`, `filter_var`, `mysqli_real_escape_string`; JS: `DOMPurify.sanitize`, `encodeURIComponent`; Python: `shlex.quote`, `bleach.clean`; Go: `html/template` auto-escape (implisit, sulit dideteksi eksplisit — catat sebagai limitasi).
+**Cara ekstraksi:** Kamus fungsi sanitasi per bahasa — PHP: `htmlspecialchars`, `filter_var`, `mysqli_real_escape_string`; JS: `DOMPurify.sanitize`, `encodeURIComponent`; Python: `shlex.quote`, `bleach.clean`; Go: `html.EscapeString`, `template.HTMLEscapeString`, `template.JSEscapeString`. Fungsi escaping Go tersebut berlaku untuk konteks output yang berbeda; pencocokan nama saja tidak membuktikan bahwa escaping sesuai konteks sink atau diterapkan pada nilai yang sama.
 **Kenapa penting:** Ini upaya awal mendekati taint tracking tanpa membangun full data-flow graph. **Perlu diwaspadai:** ini heuristik lemah — keberadaan pemanggilan fungsi sanitasi di rantai ancestor tidak menjamin fungsi itu benar-benar diterapkan ke variabel yang relevan. Anggap ini sinyal kasar, bukan bukti valid.
 
 ---

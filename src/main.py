@@ -110,6 +110,7 @@ def main() -> None:
             print(f"Positive labels (vulnerable) : {stats.total_positive_labels}")
             print(f"Skipped unsupported language : {stats.skipped_unsupported_language}")
             print(f"Skipped no-code               : {stats.skipped_no_code}")
+            print(f"Skipped duplicate input       : {stats.skipped_duplicate_input}")
             print(f"Skipped extraction failure    : {stats.skipped_extraction_failure}")
             print(f"Output file : {output_path}")
             return
