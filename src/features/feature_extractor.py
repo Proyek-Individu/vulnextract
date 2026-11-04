@@ -114,6 +114,7 @@ def extract_features(
     schema: LanguageFeatureSchema,
     language: str,
     row_meta: Dict[str, str],
+    origin: str = "vulnerable",
 ) -> StatementRecord:
     ast = node.ast_node
     raw_text = ast.text.decode("utf-8", errors="replace")
@@ -168,6 +169,7 @@ def extract_features(
         num_direct_children=len(node.children),
         cyclomatic_contribution=1 if node.statement_type in CYCLOMATIC_STATEMENT_TYPES else 0,
         label=node.label,
+        origin=origin,
     )
 
     record.uses_string_concat_or_format = _uses_string_concat_or_format(node, call_names, schema)

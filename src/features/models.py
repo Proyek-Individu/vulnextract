@@ -23,6 +23,17 @@ class StatementRecord:
     commit_hash: str = ""
     repo: str = ""
 
+    # --- which side of the CSV row this statement came from (not in
+    # context.md's schema; needed once the pipeline emits a safe/negative
+    # class too, not just the vulnerable side) ---
+    # "vulnerable": from vulnerable_code, diffed against fixed_code (label 0 or 1)
+    # "fixed": from fixed_code of a row that DID change — always label 0,
+    #          vulnerability_type forced to "none" (this code is the fix itself)
+    # "unchanged": vulnerable_code was already identical to fixed_code — the
+    #              method was safe from the start; always label 0,
+    #              vulnerability_type forced to "none"
+    origin: str = ""
+
     # --- A. Identitas & Relasi Struktural ---
     statement_id: str = ""
     parent_statement_id: Optional[str] = None
@@ -82,6 +93,9 @@ class FeaturePipelineStats:
     total_input_rows: int = 0
     total_output_rows: int = 0
     total_positive_labels: int = 0
+    total_from_vulnerable_side: int = 0
+    total_from_fixed_side: int = 0
+    total_from_unchanged_rows: int = 0
     skipped_unsupported_language: int = 0
     skipped_no_code: int = 0
     skipped_extraction_failure: int = 0

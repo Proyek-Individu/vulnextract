@@ -211,6 +211,100 @@ class TestFeaturePipeline(unittest.TestCase):
         self.assertTrue((output_df["language"] == "go").all())
         self.assertTrue((output_df["cve_id"] == "CVE-TEST-1").all())
 
+        # Both classes must be present: the vulnerable side (diffed) and the
+        # fixed side (independently extracted, always safe).
+        self.assertEqual(set(output_df["origin"]), {"vulnerable", "fixed"})
+        fixed_rows = output_df[output_df["origin"] == "fixed"]
+        self.assertGreater(len(fixed_rows), 0)
+        self.assertTrue((fixed_rows["label"] == 0).all())
+        self.assertTrue((fixed_rows["vulnerability_type"] == "none").all())
+        vuln_rows = output_df[output_df["origin"] == "vulnerable"]
+        self.assertTrue((vuln_rows["vulnerability_type"] == "SQL Injection").all())
+        # statement_id must not collide between the two origins for the same method.
+        self.assertEqual(len(output_df["statement_id"].unique()), len(output_df))
+
+    def test_fixed_code_contributes_safe_class(self):
+        data = {
+            "cve_id": ["CVE-TEST-3"],
+            "vulnerability_type": ["Missing Validation"],
+            "language": ["Python"],
+            "file": ["f.py"],
+            "method": ["add_filtered_relation"],
+            "vulnerable_code": ["def f(alias):\n    check_alias(alias)\n    use(alias)\n"],
+            "fixed_code": [
+                "def f(alias):\n"
+                "    if '.' in alias:\n"
+                "        raise ValueError('bad alias')\n"
+                "    check_alias(alias)\n"
+                "    use(alias)\n"
+            ],
+            "commit_hash": ["def456"],
+            "repo": ["https://example.com/r"],
+        }
+        df = pd.DataFrame(data)
+        pipeline = FeatureExtractionPipeline()
+        output_df, stats = pipeline.process_dataframe(df)
+
+        # A pure-insertion fix (nothing in vulnerable_code itself changed)
+        # yields zero positive labels on the vulnerable side...
+        vuln_rows = output_df[output_df["origin"] == "vulnerable"]
+        self.assertTrue((vuln_rows["label"] == 0).all())
+        # ...but the fixed side still contributes real safe-class statements,
+        # including the newly added validation check itself.
+        fixed_rows = output_df[output_df["origin"] == "fixed"]
+        self.assertGreater(len(fixed_rows), 0)
+        self.assertTrue((fixed_rows["label"] == 0).all())
+        self.assertTrue((fixed_rows["vulnerability_type"] == "none").all())
+        self.assertIn("if", set(fixed_rows["statement_type"]))
+        self.assertGreater(stats.total_from_fixed_side, 0)
+
+    def test_unchanged_row_emits_safe_class_once(self):
+        source = "def f(x):\n    a = 1\n    return a\n"
+        data = {
+            "cve_id": ["CVE-TEST-4"],
+            "vulnerability_type": ["SQL Injection"],
+            "language": ["Python"],
+            "file": ["f.py"],
+            "method": ["f"],
+            "vulnerable_code": [source],
+            "fixed_code": [source],
+            "commit_hash": [""],
+            "repo": [""],
+        }
+        df = pd.DataFrame(data)
+        pipeline = FeatureExtractionPipeline()
+        output_df, stats = pipeline.process_dataframe(df)
+
+        # Identical vulnerable/fixed code must be extracted exactly once
+        # (not duplicated as both "vulnerable" and "fixed").
+        self.assertEqual(set(output_df["origin"]), {"unchanged"})
+        self.assertEqual(len(output_df), 2)  # a = 1; return a
+        self.assertTrue((output_df["label"] == 0).all())
+        self.assertTrue((output_df["vulnerability_type"] == "none").all())
+        self.assertEqual(stats.total_from_unchanged_rows, 2)
+        self.assertEqual(stats.total_from_vulnerable_side, 0)
+        self.assertEqual(stats.total_from_fixed_side, 0)
+
+    def test_duplicate_rows_do_not_collide_statement_ids(self):
+        # Real input data has a handful of literal duplicate rows (same repo/
+        # file/method/commit_hash/cve_id) — statement_id must still be unique
+        # per row, not just per (repo, file, method, commit_hash).
+        row = {
+            "cve_id": "CVE-DUP",
+            "vulnerability_type": "Path Traversal",
+            "language": "Python",
+            "file": "f.py",
+            "method": "g",
+            "vulnerable_code": "def g(x):\n    a = 1\n    return a\n",
+            "fixed_code": "def g(x):\n    a = 2\n    return a\n",
+            "commit_hash": "same",
+            "repo": "https://example.com/r",
+        }
+        df = pd.DataFrame([row, row])  # two identical rows
+        pipeline = FeatureExtractionPipeline()
+        output_df, _stats = pipeline.process_dataframe(df)
+        self.assertEqual(len(output_df), len(output_df["statement_id"].unique()))
+
     def test_unsupported_language_skipped(self):
         data = {
             "cve_id": ["CVE-TEST-2"],

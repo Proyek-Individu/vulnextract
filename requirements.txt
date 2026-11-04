@@ -1,4 +1,6 @@
 pandas
+pyyaml
+python-dotenv
 tree-sitter
 tree-sitter-java
 tree-sitter-python
@@ -8,3 +10,7 @@ tree-sitter-c
 tree-sitter-typescript
 tree-sitter-javascript
 tree-sitter-rust
+scikit-learn
+openpyxl
+shap
+matplotlib

@@ -8,6 +8,7 @@ from typing import Optional, Tuple, Union
 
 import pandas as pd
 
+from .config import is_url
 from .extractors import get_extractor
 from .models import PairingStatus, PipelineStats
 from .strategies import AlignedPairingStrategy, BasePairingStrategy, StrictZipPairingStrategy
@@ -51,9 +52,10 @@ class CveMethodPipeline:
         Returns:
             Tuple[pd.DataFrame, PipelineStats]: Processed DataFrame and pipeline metrics.
         """
-        input_path = Path(input_path)
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found at: {input_path}")
+        if not is_url(str(input_path)):
+            input_path = Path(input_path)
+            if not input_path.exists():
+                raise FileNotFoundError(f"Input file not found at: {input_path}")
 
         logger.info(f"Loading input dataset from {input_path}...")
         df = pd.read_csv(input_path)
