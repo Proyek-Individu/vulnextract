@@ -7,8 +7,8 @@ shared train/test partition and the feature matrices.
   identical -> one "unchanged" sample, label 0). Features are a TF-IDF bag
   of code tokens over the whole method text: no AST, no splitting rules.
 - "split" (data hasil split): one sample per STATEMENT from mode
-  "features" (src/feature_pipeline.py), labeled by the recursive diff, with
-  context.md's structured A-F columns as features.
+  "features" (src/feature_pipeline.py), labeled by the recursive diff or
+  sink-aware labeling, with context.md's structured A-F columns as features.
 
 Both datasets are partitioned with the SAME group-level split, so a
 method's vulnerable and fixed versions (and every statement extracted from
@@ -26,6 +26,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 from sklearn.preprocessing import OneHotEncoder
+
+from ..dataset_loader import normalize_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -54,20 +56,27 @@ def _group_key(row: pd.Series, row_index: int, group_by: str) -> str:
     if group_by == "row":
         return f"row:{row_index}"
     if group_by == "cve":
-        return f"cve:{row.get('cve_id', '')}"
+        cve = str(row.get("cve_id", "") or "").strip()
+        return f"cve:{cve}" if cve else f"row:{row_index}"
     # "method": duplicates / the same method fixed twice share one group
-    return f"method:{row.get('repo', '')}|{row.get('file', '')}|{row.get('method', '')}"
+    repo = str(row.get("repo", "") or "").strip()
+    file_name = str(row.get("file", "") or "").strip()
+    method = str(row.get("method", "") or "").strip()
+    if not repo and not file_name and not method:
+        return f"row:{row_index}"
+    return f"method:{repo}|{file_name}|{method}"
 
 
 def build_raw_methods(raw_df: pd.DataFrame, group_by: str = "method") -> pd.DataFrame:
     """One row per method version (vulnerable / fixed / unchanged)."""
+    raw_df = normalize_dataframe(raw_df)
     records: List[Dict[str, Any]] = []
     for row_index, row in raw_df.iterrows():
         vulnerable_code = row.get("vulnerable_code")
         fixed_code = row.get("fixed_code")
         has_v = isinstance(vulnerable_code, str) and bool(vulnerable_code.strip())
         has_f = isinstance(fixed_code, str) and bool(fixed_code.strip())
-        if not has_v:
+        if not has_v and not has_f:
             continue
         base = {
             "row_index": int(row_index),
@@ -79,10 +88,10 @@ def build_raw_methods(raw_df: pd.DataFrame, group_by: str = "method") -> pd.Data
             "file": str(row.get("file", "") or ""),
             "method": str(row.get("method", "") or ""),
         }
-        if has_f and vulnerable_code.strip() == fixed_code.strip():
+        if has_v and has_f and vulnerable_code.strip() == fixed_code.strip():
             sides = [("unchanged", vulnerable_code)]
         else:
-            sides = [("vulnerable", vulnerable_code)] + ([("fixed", fixed_code)] if has_f else [])
+            sides = ([("vulnerable", vulnerable_code)] if has_v else []) + ([("fixed", fixed_code)] if has_f else [])
         for side, code in sides:
             records.append({
                 **base,
@@ -96,6 +105,7 @@ def build_raw_methods(raw_df: pd.DataFrame, group_by: str = "method") -> pd.Data
 
 def build_statements(split_df: pd.DataFrame, raw_df: pd.DataFrame, group_by: str = "method") -> pd.DataFrame:
     """Statement table + the raw row / method / group each statement belongs to."""
+    raw_df = normalize_dataframe(raw_df)
     df = split_df.copy()
     matches = df["statement_id"].astype(str).map(
         lambda s: (_ROW_INDEX_RE.findall(s) or [(None, None)])[-1]
@@ -116,8 +126,9 @@ def build_statements(split_df: pd.DataFrame, raw_df: pd.DataFrame, group_by: str
             "Jalankan ulang menu 2 (ekstraksi features) dengan input mentah yang sama."
         )
     if "cve_id" in df.columns and "cve_id" in raw_df.columns:
-        raw_cve = raw_df.loc[df["row_index"], "cve_id"].astype(str).to_numpy()
-        mismatched = int((df["cve_id"].astype(str).to_numpy() != raw_cve).sum())
+        raw_cve = raw_df.loc[df["row_index"], "cve_id"].fillna("").astype(str).to_numpy()
+        df_cve = df["cve_id"].fillna("").astype(str).to_numpy()
+        mismatched = int((df_cve != raw_cve).sum())
         if mismatched:
             logger.warning(
                 f"{mismatched} statement punya cve_id berbeda dari baris mentahnya — "
@@ -140,10 +151,13 @@ def make_folds(
     random_state: int,
 ) -> List[Tuple[set, set]]:
     """Group-level partition shared by both approaches. Groups are
-    stratified on "contains at least one label-1 statement" so the rare
-    positive statements are spread over train and test."""
+    stratified on "contains at least one label-1 statement/method" so
+    positive samples are spread over train and test."""
     groups = sorted(set(raw_methods["group"]) | set(statements["group"]))
-    positive_groups = set(statements.loc[statements["label"] == 1, "group"])
+    positive_groups = (
+        set(statements.loc[statements["label"] == 1, "group"])
+        | set(raw_methods.loc[raw_methods["label"] == 1, "group"])
+    )
     strata = np.array([1 if g in positive_groups else 0 for g in groups])
     groups_arr = np.array(groups, dtype=object)
     min_stratum = int(min(np.bincount(strata, minlength=2)))

@@ -13,6 +13,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Ensure modules can be resolved regardless of execution context
 CURRENT_DIR = Path(__file__).resolve().parent
@@ -32,6 +33,7 @@ try:
         DEFAULT_FEATURES_OUTPUT_FILE,
         DEFAULT_GRANULARITY,
         DEFAULT_INPUT_FILE,
+        DEFAULT_MAX_ROWS,
         DEFAULT_OUTPUT_FILE,
         DEFAULT_STRATEGY,
         DEFAULT_VERBOSE,
@@ -49,6 +51,7 @@ except ImportError:
         DEFAULT_FEATURES_OUTPUT_FILE,
         DEFAULT_GRANULARITY,
         DEFAULT_INPUT_FILE,
+        DEFAULT_MAX_ROWS,
         DEFAULT_OUTPUT_FILE,
         DEFAULT_STRATEGY,
         DEFAULT_VERBOSE,
@@ -72,12 +75,19 @@ def setup_logging(verbose: bool = False) -> None:
 # Pipeline execution (shared by both the CLI-flag flow and the interactive menu)
 # ---------------------------------------------------------------------------
 
-def run_pairs(input_path, output_path, granularity: str, strategy: str, verbose: bool = False) -> None:
+def run_pairs(
+    input_path,
+    output_path,
+    granularity: str,
+    strategy: str,
+    verbose: bool = False,
+    max_rows: Optional[int] = DEFAULT_MAX_ROWS,
+) -> None:
     setup_logging(verbose)
     strategy_obj = AlignedPairingStrategy() if strategy == "aligned" else StrictZipPairingStrategy()
-    pipeline = CveMethodPipeline(pairing_strategy=strategy_obj, granularity=granularity)
+    pipeline = CveMethodPipeline(pairing_strategy=strategy_obj, granularity=granularity, max_rows=max_rows)
 
-    _, stats = pipeline.process_file(input_path=input_path, output_path=output_path)
+    _, stats = pipeline.process_file(input_path=input_path, output_path=output_path, max_rows=max_rows)
 
     print()
     print("Selesai!")
@@ -91,11 +101,16 @@ def run_pairs(input_path, output_path, granularity: str, strategy: str, verbose:
     print(f"Output file : {output_path}")
 
 
-def run_features(input_path, output_path, verbose: bool = False) -> None:
+def run_features(
+    input_path,
+    output_path,
+    verbose: bool = False,
+    max_rows: Optional[int] = DEFAULT_MAX_ROWS,
+) -> None:
     setup_logging(verbose)
-    pipeline = FeatureExtractionPipeline()
+    pipeline = FeatureExtractionPipeline(max_rows=max_rows)
 
-    _, stats = pipeline.process_file(input_path=input_path, output_path=output_path)
+    _, stats = pipeline.process_file(input_path=input_path, output_path=output_path, max_rows=max_rows)
 
     print()
     print("Selesai!")
@@ -150,11 +165,20 @@ def _ask_yes_no(label: str, default_yes: bool = True) -> bool:
     return answer in ("y", "yes", "ya")
 
 
+def _parse_max_rows_input(val: str) -> Optional[int]:
+    val = str(val or "").strip()
+    if not val or val == "0" or val.lower() in ("all", "none", "null"):
+        return None
+    n = int(val)
+    return n if n > 0 else None
+
+
 def _menu_run_pairs() -> None:
     print()
     print("--- Ekstraksi pairs (vulnerable/fixed text pairs) ---")
     input_path = _ask("Input file", str(DEFAULT_INPUT_FILE))
     output_path = _ask("Output file", str(DEFAULT_OUTPUT_FILE))
+    max_rows_str = _ask("Batas baris maksimum (0 = semua)", str(DEFAULT_MAX_ROWS or 0))
     granularity = _ask("Granularity (statement/method)", DEFAULT_GRANULARITY)
     strategy = _ask("Strategy (aligned/strict)", DEFAULT_STRATEGY)
     verbose = _ask_yes_no("Aktifkan log debug?", default_yes=DEFAULT_VERBOSE)
@@ -163,7 +187,7 @@ def _menu_run_pairs() -> None:
         print("Dibatalkan.")
         return
 
-    run_pairs(input_path, Path(output_path), granularity, strategy, verbose)
+    run_pairs(input_path, Path(output_path), granularity, strategy, verbose, _parse_max_rows_input(max_rows_str))
 
 
 def _menu_run_features() -> None:
@@ -171,13 +195,14 @@ def _menu_run_features() -> None:
     print("--- Ekstraksi features (statement-level, berlabel, untuk ML) ---")
     input_path = _ask("Input file", str(DEFAULT_INPUT_FILE))
     output_path = _ask("Output file", str(DEFAULT_FEATURES_OUTPUT_FILE))
+    max_rows_str = _ask("Batas baris maksimum (0 = semua)", str(DEFAULT_MAX_ROWS or 0))
     verbose = _ask_yes_no("Aktifkan log debug?", default_yes=DEFAULT_VERBOSE)
 
     if not _ask_yes_no("Lanjutkan?", default_yes=True):
         print("Dibatalkan.")
         return
 
-    run_features(input_path, Path(output_path), verbose)
+    run_features(input_path, Path(output_path), verbose, _parse_max_rows_input(max_rows_str))
 
 
 def _model_names(specs) -> str:
@@ -217,6 +242,7 @@ def _menu_run_classify() -> None:
     print("--- Klasifikasi vulnerability (ML + XAI): data mentah vs data split ---")
     raw_input = _ask("Data mentah (CSV input)", str(DEFAULT_CLASSIFICATION_RAW_INPUT))
     split_input = _ask("Data split (hasil menu 2; dibuat otomatis jika belum ada)", str(DEFAULT_CLASSIFICATION_SPLIT_INPUT))
+    max_rows_str = _ask("Batas baris maksimum (0 = semua)", str(DEFAULT_MAX_ROWS or 0))
     output_dir = _ask("Folder output", str(DEFAULT_CLASSIFICATION_OUTPUT_DIR))
     models = _ask("Model (pisahkan koma)", _model_names(cfg.get("models")))
     test_size = _ask("Porsi data test (0.2 atau 20%)", str(cfg["split"]["test_size"]))
@@ -232,6 +258,7 @@ def _menu_run_classify() -> None:
     overrides = {
         "raw_input": raw_input,
         "split_input": split_input,
+        "max_rows": _parse_max_rows_input(max_rows_str),
         "output_dir": output_dir,
         "models": models_override(models),
         "split": {"test_size": parse_test_size(test_size), "cv_folds": int(cv_folds or 0)},
@@ -316,6 +343,12 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        "--max-rows",
+        type=int,
+        default=None,
+        help=f"Maximum number of rows to read from the input CSV (0 = unlimited; default: {DEFAULT_MAX_ROWS})"
+    )
+    parser.add_argument(
         "--split-input",
         type=Path,
         default=None,
@@ -380,6 +413,8 @@ def main() -> None:
     if output_path is None:
         output_path = DEFAULT_OUTPUT_FILE if args.mode == "pairs" else DEFAULT_FEATURES_OUTPUT_FILE
 
+    max_rows = DEFAULT_MAX_ROWS if args.max_rows is None else (args.max_rows if args.max_rows > 0 else None)
+
     try:
         if args.mode == "classify":
             overrides = {}
@@ -389,6 +424,8 @@ def main() -> None:
                 overrides["output_dir"] = str(args.output)
             if args.split_input is not None:
                 overrides["split_input"] = str(args.split_input)
+            if args.max_rows is not None:
+                overrides["max_rows"] = max_rows
             if args.models:
                 overrides["models"] = models_override(args.models)
             split = {}
@@ -404,9 +441,9 @@ def main() -> None:
                 overrides["xai"] = {"enabled": False}
             run_classify(overrides, args.verbose)
         elif args.mode == "features":
-            run_features(input_path, output_path, args.verbose)
+            run_features(input_path, output_path, args.verbose, max_rows=max_rows)
         else:
-            run_pairs(input_path, output_path, args.granularity, args.strategy, args.verbose)
+            run_pairs(input_path, output_path, args.granularity, args.strategy, args.verbose, max_rows=max_rows)
     except Exception as e:
         logging.error(f"Execution failed: {e}", exc_info=args.verbose)
         sys.exit(1)

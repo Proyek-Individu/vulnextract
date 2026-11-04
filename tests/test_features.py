@@ -7,6 +7,7 @@ import unittest
 
 import pandas as pd
 
+from src.dataset_loader import normalize_dataframe
 from src.feature_pipeline import FeatureExtractionPipeline
 from src.features.feature_extractor import extract_features
 from src.features.labeler import label_statements
@@ -322,6 +323,58 @@ class TestFeaturePipeline(unittest.TestCase):
         output_df, stats = pipeline.process_dataframe(df)
         self.assertEqual(stats.skipped_unsupported_language, 1)
         self.assertEqual(stats.total_output_rows, 0)
+
+    def test_code_vulnerabilities_dataset_features(self):
+        df = pd.DataFrame({
+            "Code Snippet": [
+                "cursor.execute('SELECT * FROM users WHERE username = ' + user_input)",
+                "document.getElementById('input').innerHTML = user_input;",
+            ],
+            "Vulnerability Type": ["SQLi", "XSS"],
+            "Location": [8, 10],
+            "Preprocessed Tokens": ["[]", "[]"],
+        })
+        pipeline = FeatureExtractionPipeline()
+        output_df, stats = pipeline.process_dataframe(df)
+        self.assertEqual(stats.total_input_rows, 2)
+        self.assertEqual(stats.total_output_rows, 2)
+        self.assertEqual(stats.total_positive_labels, 2)
+        self.assertEqual(set(output_df["origin"]), {"vulnerable"})
+        self.assertTrue((output_df["label"] == 1).all())
+
+    def test_cvefixes_dataset_features(self):
+        df = pd.DataFrame({
+            "code": [
+                "def vuln(u):\n    x = 1\n    return cursor.execute('SELECT ' + u)\n",
+                "def safe(u):\n    return cursor.execute('SELECT %s', (u,))\n",
+            ],
+            "language": ["py", "py"],
+            "safety": ["vulnerable", "safe"],
+        })
+        pipeline = FeatureExtractionPipeline()
+        output_df, stats = pipeline.process_dataframe(df)
+        self.assertEqual(stats.total_input_rows, 2)
+        self.assertEqual(set(output_df["origin"]), {"vulnerable", "fixed"})
+        self.assertGreater(stats.total_positive_labels, 0)
+        self.assertGreater(stats.total_from_fixed_side, 0)
+        fixed_rows = output_df[output_df["origin"] == "fixed"]
+        self.assertTrue((fixed_rows["label"] == 0).all())
+
+    def test_security_vulnerabilities_dataset_features(self):
+        df = pd.DataFrame({
+            "Title": ["Scancode.io Reflected Cross-Site Scripting (XSS) in license endpoint"],
+            "Date": ["2023-08-15T20:04:49Z"],
+            "Severity": ["Moderate"],
+            "Summary": ["CVE-2023-40024was published\n                        forscancodeio(pip)Aug 15, 2023"],
+            "Link": ["https://github.com/advisories/GHSA-6xcx-gx7r-rccj"],
+        })
+        norm_df = normalize_dataframe(df, fetch_github=False)
+        pipeline = FeatureExtractionPipeline()
+        output_df, stats = pipeline.process_dataframe(norm_df)
+        self.assertEqual(stats.total_input_rows, 1)
+        self.assertGreater(stats.total_output_rows, 0)
+        self.assertGreater(stats.total_positive_labels, 0)
+        self.assertEqual(set(output_df["origin"]), {"vulnerable", "fixed"})
 
 
 if __name__ == "__main__":

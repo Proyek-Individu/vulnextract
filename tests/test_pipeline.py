@@ -186,6 +186,61 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(output_df.iloc[1]["vulnerable_code"], "b = 2")
         self.assertEqual(output_df.iloc[1]["fixed_code"], "b = 3")
 
+    def test_pipeline_code_vulnerabilities_format(self):
+        df = pd.DataFrame({
+            "Code Snippet": [
+                "cursor.execute('SELECT * FROM users WHERE username = ' + user_input)",
+                "document.getElementById('input').innerHTML = user_input;",
+            ],
+            "Vulnerability Type": ["SQLi", "XSS"],
+            "Location": [8, 10],
+            "Preprocessed Tokens": ["[]", "[]"],
+        })
+        pipeline = CveMethodPipeline(granularity="statement")
+        output_df, stats = pipeline.process_dataframe(df)
+        self.assertEqual(stats.total_input_rows, 2)
+        self.assertEqual(stats.total_output_rows, 2)
+        self.assertEqual(list(output_df["language"]), ["python", "javascript"])
+        self.assertTrue((output_df["fixed_code"] == "").all())
+        self.assertTrue((output_df["vulnerable_code"] != "").all())
+
+    def test_pipeline_cvefixes_format(self):
+        df = pd.DataFrame({
+            "code": [
+                "def vuln(u):\n    return cursor.execute('SELECT ' + u)\n",
+                "def safe(u):\n    return cursor.execute('SELECT %s', (u,))\n",
+                "404: Not Found",
+            ],
+            "language": ["py", "py", "c"],
+            "safety": ["vulnerable", "safe", "vulnerable"],
+        })
+        pipeline = CveMethodPipeline(granularity="statement")
+        output_df, stats = pipeline.process_dataframe(df)
+        self.assertEqual(stats.total_input_rows, 3)
+        self.assertEqual(stats.skipped_no_code, 1)
+        self.assertEqual(stats.total_output_rows, 2)
+        self.assertNotEqual(output_df.iloc[0]["vulnerable_code"], "")
+        self.assertEqual(output_df.iloc[0]["fixed_code"], "")
+        self.assertEqual(output_df.iloc[1]["vulnerable_code"], "")
+        self.assertNotEqual(output_df.iloc[1]["fixed_code"], "")
+
+    def test_pipeline_security_vulnerabilities_format(self):
+        df = pd.DataFrame({
+            "Title": ["Scancode.io Reflected Cross-Site Scripting (XSS) in license endpoint"],
+            "Date": ["2023-08-15T20:04:49Z"],
+            "Severity": ["Moderate"],
+            "Summary": ["CVE-2023-40024was published\n                        forscancodeio(pip)Aug 15, 2023"],
+            "Link": ["https://github.com/advisories/GHSA-6xcx-gx7r-rccj"],
+        })
+        from src.dataset_loader import normalize_dataframe
+        norm_df = normalize_dataframe(df, fetch_github=False)
+        pipeline = CveMethodPipeline(granularity="statement")
+        output_df, stats = pipeline.process_dataframe(norm_df)
+        self.assertEqual(stats.total_input_rows, 1)
+        self.assertGreater(stats.total_output_rows, 0)
+        self.assertTrue((output_df["cve_id"] == "CVE-2023-40024").all())
+        self.assertTrue((output_df["language"] == "python").all())
+
 
 if __name__ == "__main__":
     unittest.main()

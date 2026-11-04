@@ -13,7 +13,7 @@ below rather than failing to import.
 """
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 # Resolve base directories dynamically so code can run from any working directory
 SRC_DIR = Path(__file__).resolve().parent
@@ -30,6 +30,7 @@ except ImportError:
 
 _DEFAULTS: Dict[str, Any] = {
     "input_file": str(PROJECT_ROOT / "data" / "input" / "cve_fix_pairs.csv"),
+    "max_rows": 5000,
     "output": {
         "pairs": str(PROJECT_ROOT / "data" / "output" / "output_csv_fix_pairs.csv"),
         "features": str(PROJECT_ROOT / "data" / "output" / "output_statement_features.csv"),
@@ -139,7 +140,18 @@ def _as_input_path(value: str):
     return value if is_url(value) else _resolve_path(value)
 
 
+def _parse_max_rows(value: Any) -> Optional[int]:
+    if value is None or value == "":
+        return None
+    try:
+        n = int(value)
+        return n if n > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
 DEFAULT_INPUT_FILE = _as_input_path(GLOBAL["input_file"])
+DEFAULT_MAX_ROWS: Optional[int] = _parse_max_rows(GLOBAL.get("max_rows"))
 DEFAULT_OUTPUT_FILE = _resolve_path(GLOBAL["output"]["pairs"])
 DEFAULT_FEATURES_OUTPUT_FILE = _resolve_path(GLOBAL["output"]["features"])
 DEFAULT_GRANULARITY = GLOBAL["pairs"]["granularity"]

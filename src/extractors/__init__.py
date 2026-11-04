@@ -45,14 +45,14 @@ class ExtractorRegistry:
 
 
 # Register all supported language extractors
-ExtractorRegistry.register(JavaMethodExtractor())
-ExtractorRegistry.register(PythonMethodExtractor(), aliases=["py"])
+ExtractorRegistry.register(JavaMethodExtractor(), aliases=["maven", "gradle"])
+ExtractorRegistry.register(PythonMethodExtractor(), aliases=["py", "python3", "pip"])
 ExtractorRegistry.register(GoMethodExtractor(), aliases=["golang"])
-ExtractorRegistry.register(PhpMethodExtractor())
-ExtractorRegistry.register(JavascriptMethodExtractor(), aliases=["js"])
-ExtractorRegistry.register(TypescriptMethodExtractor(), aliases=["ts"])
-ExtractorRegistry.register(RustMethodExtractor(), aliases=["rs"])
-ExtractorRegistry.register(CMethodExtractor(), aliases=["cpp", "c++"])
+ExtractorRegistry.register(PhpMethodExtractor(), aliases=["phpt", "phtml", "ctp", "composer"])
+ExtractorRegistry.register(JavascriptMethodExtractor(), aliases=["js", "mjs", "cjs", "jsx", "node", "npm"])
+ExtractorRegistry.register(TypescriptMethodExtractor(), aliases=["ts", "tsx"])
+ExtractorRegistry.register(RustMethodExtractor(), aliases=["rs", "cargo"])
+ExtractorRegistry.register(CMethodExtractor(), aliases=["cpp", "c++", "h", "cc", "cxx", "hpp", "hh"])
 
 
 def get_extractor(language: str) -> Optional[BaseMethodExtractor]:

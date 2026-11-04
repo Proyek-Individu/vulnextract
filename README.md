@@ -1,6 +1,6 @@
 # vulnextract
 
-Pipeline untuk mengubah dataset pasangan kode CVE (vulnerable vs fixed) menjadi dataset tabular (CSV), sebagai bahan riset deteksi kerentanan perangkat lunak. Mendukung Go, Python, JavaScript, TypeScript, PHP, Java, Rust, dan C — parsing per bahasa menggunakan [tree-sitter](https://tree-sitter.github.io/tree-sitter/).
+Pipeline untuk mengubah dataset kerentanan kode (CVE fix pairs, snippet kerentanan, dataset berlabel safety, maupun advisory keamanan) menjadi dataset tabular (CSV) yang seragam, sebagai bahan riset deteksi kerentanan perangkat lunak. Mendukung Go, Python, JavaScript, TypeScript, PHP, Java, Rust, dan C — parsing per bahasa menggunakan [tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
 ## Prasyarat
 
@@ -34,7 +34,7 @@ Install dependency:
 pip install -r requirements.txt
 ```
 
-Siapkan file secret (opsional — belum ada yang benar-benar dipakai kode saat ini, tapi infrastrukturnya sudah disiapkan untuk pengembangan selanjutnya):
+Siapkan file secret (opsional — mis. `GITHUB_TOKEN` untuk memperbesar *rate limit* saat mengambil diff commit dari GitHub Advisory API):
 
 ```bash
 # Windows
@@ -65,7 +65,7 @@ Akan muncul menu:
 Pilih menu [1]:
 ```
 
-Pilih mode, lalu untuk tiap pertanyaan berikutnya (input file, output file, dst.) tinggal tekan **Enter** untuk pakai nilai default dari `global.yaml`, atau ketik nilai lain kalau mau override khusus untuk sekali jalan itu saja. Setelah proses selesai, ditanya mau kembali ke menu atau keluar.
+Pilih mode, lalu untuk tiap pertanyaan berikutnya (input file, output file, batas baris, dst.) tinggal tekan **Enter** untuk pakai nilai default dari `global.yaml`, atau ketik nilai lain kalau mau override khusus untuk sekali jalan itu saja. Setelah proses selesai, ditanya mau kembali ke menu atau keluar.
 
 Menu **"3. Klasifikasi vulnerability"** melatih model ML yang diatur di `global.yaml` (default: Random Forest) dan membandingkan performa klasifikasi dari **data mentah** vs **data hasil split** mode `features`, lengkap dengan XAI — lihat [Klasifikasi & XAI](#klasifikasi--xai-menu-3).
 
@@ -76,7 +76,9 @@ Beri argumen CLI apa saja dan menu interaktif otomatis dilewati:
 ```bash
 python src/main.py -m features
 python src/main.py -m pairs -g method -s strict
-python src/main.py -m features -i data/input/my_dataset.csv -o data/output/my_result.csv -v
+python src/main.py -m features -i data/input/code_vulnerabilities.csv -o data/output/features_code_vuln.csv
+python src/main.py -m features -i data/input/CVEFixes.csv --max-rows 5000 -o data/output/features_cvefixes.csv
+python src/main.py -m features -i "data/input/Security Vulnerabilities.csv" -o data/output/features_sec_vuln.csv
 python src/main.py -m classify
 python src/main.py -m classify --models random_forest,logistic_regression --cv-folds 5 --formats xlsx
 ```
@@ -86,6 +88,7 @@ python src/main.py -m classify --models random_forest,logistic_regression --cv-f
 | `-i`, `--input` | Path atau URL file CSV input (mode `classify`: data mentah) | `input_file` / `classification.raw_input` |
 | `-o`, `--output` | Path file CSV output (mode `classify`: **folder** output) | `output.pairs` / `output.features` / `classification.output_dir` sesuai `--mode` |
 | `-m`, `--mode` | `pairs`, `features`, atau `classify` | `pairs` |
+| `--max-rows` | Batas maksimum baris yang dibaca dari CSV input (`0` = semua baris) | `max_rows` (`5000`) |
 | `-g`, `--granularity` | `statement` atau `method` (hanya mode `pairs`) | `pairs.granularity` |
 | `-s`, `--strategy` | Strategi pairing: `aligned` atau `strict` (hanya mode `pairs`) | `pairs.strategy` |
 | `-v`, `--verbose` | Aktifkan log debug | `verbose` |
@@ -104,6 +107,7 @@ File ini di root repo, **aman di-commit**, isinya semua nilai yang biasanya dike
 
 ```yaml
 input_file: data/input/cve_fix_pairs.csv   # path lokal ATAU URL http(s)
+max_rows: 5000                             # batas baris input (0 = baca semua)
 
 output:
   pairs: data/output/output_csv_fix_pairs.csv
@@ -128,23 +132,30 @@ Ubah nilainya kapan pun — menu interaktif dan argumen CLI sama-sama membaca de
 
 ### `.env` — pengaturan rahasia
 
-Beda dari `global.yaml`: file `.env` **tidak** di-commit (sudah ada di `.gitignore`). Salin dari [.env.example](.env.example) lalu isi kalau diperlukan. Saat ini belum ada kode yang membaca variabel di sini — disiapkan untuk kebutuhan ke depan (mis. token API kalau tahap deteksi vulnerability nanti memanggil layanan eksternal).
+Beda dari `global.yaml`: file `.env` **tidak** di-commit (sudah ada di `.gitignore`). Salin dari [.env.example](.env.example) lalu isi kalau diperlukan (mis. `GITHUB_TOKEN` untuk autentikasi GitHub Advisory API).
 
 ## Format data
 
-### Input
+### Input (Mendukung Berbagai Format Dataset Secara Otomatis)
 
-CSV dengan kolom minimal berikut (lihat [data/input/cve_fix_pairs.csv](data/input/cve_fix_pairs.csv)):
+Melalui modul adapter dan normalizer universal ([src/dataset_loader.py](src/dataset_loader.py)), pipeline mendeteksi kolom dan menormalisasi berbagai format dataset kerentanan ke skema kanonik 11 kolom (`cve_id, vulnerability_type, language, file, method, vulnerable_code, fixed_code, commit_hash, repo, commit_msg, granularity`):
 
-`cve_id, vulnerability_type, language, file, method, vulnerable_code, fixed_code, commit_hash, repo, commit_msg`
+1. **Format Berpasangan (`data/input/cve_fix_pairs.csv`)**:
+   Memiliki kolom `vulnerable_code` dan `fixed_code` (atau alias seperti `func_before`/`func_after`, `before`/`after`, `buggy_code`/`patched_code`).
+2. **Format Snippet Tunggal (`data/input/code_vulnerabilities.csv`)**:
+   Memiliki kolom `Code Snippet, Vulnerability Type, Location, Preprocessed Tokens`. Bahasa pemrograman (`python`, `javascript`, dst.) dideteksi otomatis dari sintaks snippet.
+3. **Format Berlabel Safety (`data/input/CVEFixes.csv`)**:
+   Memiliki kolom `code, language, safety` (`vulnerable` / `safe`). Baris `vulnerable` dipetakan ke `vulnerable_code` dan baris `safe` dipetakan ke `fixed_code`. Mendukung pembatasan `max_rows` agar file berukuran besar (~1.5 GB) dapat diproses cepat tanpa kehabisan memori.
+4. **Format Advisory / Link GitHub (`data/input/Security Vulnerabilities.csv`)**:
+   Memiliki kolom `Title, Date, Severity, Summary, Link`. Mengekstrak ID CVE/GHSA, nama paket/repo, ekosistem bahasa (`(pip)` → `python`, `(npm)` → `javascript`, `(Composer)` → `php`, `(Go)` → `go`, `(Maven)` → `java`, `(Rust)` → `rust`), serta kategori kerentanan dari `Title`/`Summary`. Mencoba mengambil diff commit melalui GitHub Advisory/Commit API (dilengkapi *circuit breaker* otomatis dan *fallback* sintesis AST lokal saat offline/terkena *rate limit*).
 
-Satu baris merepresentasikan satu method/fungsi (vulnerable dan fixed) dari satu commit perbaikan CVE. Nilai `language` harus salah satu dari: `go`, `python`, `javascript`, `typescript`, `php`, `java`, `rust`, `c` (case-insensitive; beberapa alias seperti `py`, `js`, `ts`, `golang`, `rs`, `cpp` juga didukung — lihat [src/extractors/__init__.py](src/extractors/__init__.py)). Mode `features` hanya memproses 5 bahasa pertama.
+Nilai `language` mendukung `go`, `python`, `javascript`, `typescript`, `php`, `java`, `rust`, `c` beserta aliasnya (`py`, `js`, `ts`, `golang`, `rs`, `cpp`, `h`, `cc`, `phpt`, `ctp`, `pip`, `npm`, `composer`, `maven` — lihat [src/extractors/__init__.py](src/extractors/__init__.py) dan [src/dataset_loader.py](src/dataset_loader.py)). Mode `features` memproses 5 bahasa target sesuai [context.md](context.md) (`go`, `python`, `javascript`, `typescript`, `php`).
 
 `input_file` boleh juga diarahkan ke URL (http/https) yang menyajikan CSV langsung — pandas akan mengambilnya tanpa perlu diunduh manual dulu.
 
 ### Output — mode `pairs`
 
-Satu baris output = satu pasangan teks `(vulnerable_code, fixed_code)` pada granularitas `statement` atau `method` — cocok untuk pendekatan diff/contrastive (mis. fine-tune model code-repair). Kolom sama seperti input, ditambah `granularity`.
+Satu baris output = satu pasangan teks `(vulnerable_code, fixed_code)` pada granularitas `statement` atau `method` dengan 11 kolom kanonik yang sama persis (`cve_id, vulnerability_type, language, file, method, vulnerable_code, fixed_code, commit_hash, repo, commit_msg, granularity`). Untuk dataset tidak berpasangan (`CVEFixes`, `code_vulnerabilities`), baris vulnerable mengisi `vulnerable_code` (`fixed_code` kosong) dan baris safe mengisi `fixed_code` (`vulnerable_code` kosong).
 
 ### Output — mode `features`
 
@@ -154,11 +165,9 @@ Setiap baris input CSV bisa menyumbang statement ke **dua kelas** (kolom `label`
 
 | `origin` | Sumber | `label` | `vulnerability_type` |
 |---|---|---|---|
-| `vulnerable` | `vulnerable_code`, di-diff ke `fixed_code` | 1 kalau statement itu memang berubah di fix, 0 kalau tidak | nilai asli dari CSV |
-| `fixed` | `fixed_code` dari baris yang memang berubah — ini kode hasil perbaikan | selalu 0 | dipaksa `"none"` (bukan instance vulnerability) |
+| `vulnerable` | `vulnerable_code` (di-diff ke `fixed_code` bila berpasangan, atau via deteksi sink kategori D / seluruh snippet bila tidak berpasangan) | 1 untuk statement vulnerable/sink, 0 untuk statement tidak berubah/non-sink | nilai asli dari CSV |
+| `fixed` | `fixed_code` dari baris perbaikan atau baris berlabel `safe` | selalu 0 | dipaksa `"none"` (bukan instance vulnerability) |
 | `unchanged` | baris di mana `vulnerable_code == fixed_code` sejak awal (aman dari awal) — diekstrak sekali saja, tidak dobel dengan `vulnerable`/`fixed` | selalu 0 | dipaksa `"none"` |
-
-Ini supaya dataset tidak cuma berisi kelas vulnerable — kelas aman/negative diambil dari kode hasil perbaikan itu sendiri (bukan cuma sisa statement yang kebetulan tidak berubah di method vulnerable), ditambah baris yang memang sudah aman sejak awal kalau ada di data mentah.
 
 ## Klasifikasi & XAI (menu 3)
 
@@ -167,7 +176,7 @@ Tujuannya menjawab: *apakah aturan split statement-level (mode `features`) meman
 | `approach` | Unit sampel | Label | Fitur |
 |---|---|---|---|
 | `raw` | 1 method dari CSV mentah | `vulnerable_code` = 1, `fixed_code` = 0 | TF-IDF token kode method utuh (tanpa AST / aturan split) |
-| `split` | 1 statement dari hasil mode `features` | kolom `label` (1 = statement yang berubah di fix) | kolom terstruktur kategori A–F ([context.md](context.md)) |
+| `split` | 1 statement dari hasil mode `features` | kolom `label` (1 = statement vulnerable) | kolom terstruktur kategori A–F ([context.md](context.md)) |
 
 Hasil dievaluasi di tiga `eval_level`:
 
@@ -180,8 +189,8 @@ Hal penting soal pembagian data:
 - Train/test dibagi **per grup** (default `group_by: method` = repo+file+method), bukan per baris. Versi vulnerable dan fixed dari method yang sama (teksnya hampir identik) tidak boleh terpisah ke train dan test, karena itu kebocoran data. `test_size` dihitung atas jumlah grup, jadi porsi *statement* di test bisa berbeda dari 20%.
 - `align_samples: true` mempersempit data mentah ke method yang juga ada di data split (mode `features` hanya mendukung Go/Python/JS/TS/PHP), supaya perbandingannya adil.
 - Kolom ID/lokasi dan proxy label (`origin`, `vulnerability_type`, `cve_id`, `line_start`, …) otomatis dibuang dari fitur split.
-- Data split ditautkan ke baris CSV mentah lewat index baris di dalam `statement_id`, jadi data split harus dibuat (menu 2) dari CSV mentah yang sama. Kalau file `split_input` belum ada, menu 3 menjalankan ekstraksi features dulu secara otomatis.
-- Untuk dataset kecil seperti sekarang disarankan `cv_folds: 5`. Holdout sekali dengan ~16 grup test sangat dipengaruhi keberuntungan split; dengan k-fold, laporan berisi rata-rata dan std.
+- Data split ditautkan ke baris CSV mentah lewat index baris di dalam `statement_id`. Kalau file `split_input` belum ada atau berasal dari dataset mentah yang berbeda, menu 3 menjalankan ekstraksi features dulu secara otomatis.
+- Bila dataset input mentah hanya memiliki sampel positif/vulnerable tanpa kelas aman (seperti `code_vulnerabilities.csv`), mode `classify` otomatis membentuk baseline pasangan kode aman (remediated) agar klasifikasi biner dan XAI tetap dapat dijalankan.
 
 ### Memilih model
 
@@ -227,8 +236,6 @@ Tiap run menulis folder baru `data/output/classification/run_YYYYmmdd_HHMMSS/` b
 | `dataset_info` | Jumlah sampel, positif, fitur, dan grup per fold/approach |
 | `xai_notes`, `config` | Metode XAI yang dipakai/dilewati, dan konfigurasi persis yang dipakai run tersebut |
 
-Label 1 di level statement sangat sedikit (~3%), jadi baca **PR-AUC, MCC, dan F1**. Accuracy di level statement hampir selalu tinggi hanya karena mayoritas sampelnya kelas 0.
-
 ## Menjalankan test
 
 ```bash
@@ -238,13 +245,14 @@ python -m unittest tests.test_pipeline tests.test_features tests.test_classifica
 ## Struktur proyek
 
 ```
-global.yaml                # konfigurasi non-rahasia (path input/output, default opsi)
+global.yaml                # konfigurasi non-rahasia (path input/output, max_rows, default opsi)
 .env.example                # template variabel rahasia -> salin jadi .env
 src/
   main.py                    # entry point: menu interaktif (tanpa argumen) / CLI flags (dengan argumen)
   config.py                   # baca global.yaml + .env, expose DEFAULT_*
-  pipeline.py                  # mode "pairs": baca CSV -> extract -> pairing -> tulis CSV
-  feature_pipeline.py          # mode "features": baca CSV -> tree -> label -> extract fitur -> tulis CSV
+  dataset_loader.py            # adapter & normalizer universal untuk berbagai format dataset CSV
+  pipeline.py                  # mode "pairs": baca CSV -> normalisasi -> extract -> pairing -> tulis CSV
+  feature_pipeline.py          # mode "features": baca CSV -> normalisasi -> tree -> label -> fitur -> tulis CSV
   classification/               # mode "classify" (menu 3): ML + XAI, data mentah vs data split
     model_registry.py            # alias model + loader kelas sklearn-compatible dari global.yaml
     datasets.py                  # dataset raw (method) & split (statement), pembagian per grup, matriks fitur
@@ -262,21 +270,11 @@ src/
     feature_extractor.py            # StatementNode -> StatementRecord (kategori A-F)
     langs/                           # skema per bahasa: taksonomi node, kamus sink (D) & sanitizer (E)
 tests/
-  test_pipeline.py             # unit test mode "pairs"
-  test_features.py             # unit test mode "features"
+  test_pipeline.py             # unit test mode "pairs" & berbagai format dataset
+  test_features.py             # unit test mode "features" & berbagai format dataset
   test_classification.py       # unit test mode "classify"
 data/
-  input/                      # dataset CVE mentah
-  output/                     # hasil ekstraksi (kedua mode)
+  input/                      # dataset CVE mentah (cve_fix_pairs, code_vulnerabilities, CVEFixes, Security Vulnerabilities)
+  output/                     # hasil ekstraksi (kedua mode) & laporan klasifikasi
 context.md                    # panduan skema kolom fitur mode "features"
 ```
-
-## Catatan & keterbatasan yang diketahui
-
-- `extract_statements`/`tree_builder` mengambil statement dari body function/method via AST (bukan split baris kosong), sehingga hasilnya stabil walau gaya format (jumlah baris kosong) berbeda antara versi vulnerable dan fixed.
-- **Skema labeling mode `features`** hanya menandai statement yang benar-benar berubah di diff (bukan seluruh statement di method vulnerable). Konsekuensinya: CVE bertipe "missing validation" (fix-nya murni menambah statement baru, tidak mengubah statement yang sudah ada) akan menghasilkan **nol** baris `origin=vulnerable` berlabel 1 untuk method tersebut — tapi tetap menyumbang kelas aman lewat `origin=fixed`.
-- Kamus signature kategori D (sink berbahaya) dan E (sanitizer) di `features/langs/*.py` ditranskripsi langsung dari nama fungsi yang disebut di context.md — per catatan context.md sendiri, kamus ini akan selalu tidak lengkap (mis. verb query-builder ORM lain di luar `.Query`/`.Exec`/`.QueryRow` belum tercakup untuk Go).
-- `call_target_kind` (stdlib/third_party/user_defined) memakai daftar prefix kecil per bahasa sebagai pendekatan kasar — bukan resolusi import sungguhan.
-- `guard_count`/`sanitization_call_detected` adalah heuristik pendekatan taint tracking, bukan taint tracking sesungguhnya (lihat context.md).
-- `statement_id` menyertakan index baris CSV di dalam prefix-nya — beberapa baris di `data/input/cve_fix_pairs.csv` punya `(repo, file, method, commit_hash)` yang identik (termasuk duplikat literal, mis. `CVE-2026-47144`/`CVE-2026-48089`), jadi index baris dipakai sebagai pembeda supaya `statement_id` tetap unik.
-- Dataset saat ini (104 baris) belum punya baris `vulnerable_code == fixed_code` (origin `unchanged`) — penanganannya sudah diimplementasikan dan diuji ([tests/test_features.py](tests/test_features.py)), tapi baru benar-benar terpakai kalau data mentah ke depan menambahkan baris semacam itu.

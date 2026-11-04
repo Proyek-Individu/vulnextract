@@ -101,6 +101,19 @@ def local_scope_nodes(node: StatementNode, predicate) -> List[object]:
     return found
 
 
+def _find_all_functions(tree_root, function_node_types: Tuple[str, ...]) -> List[object]:
+    funcs: List[object] = []
+
+    def walk(node) -> None:
+        if node.type in function_node_types:
+            funcs.append(node)
+        for child in node.children:
+            walk(child)
+
+    walk(tree_root)
+    return funcs
+
+
 def build_statement_tree(
     source_code: str,
     language: str,
@@ -108,12 +121,11 @@ def build_statement_tree(
     id_prefix: str,
 ) -> Tuple[List[StatementNode], bytes]:
     """
-    Builds the hierarchical statement tree for one method's source.
+    Builds the hierarchical statement tree for one method's or file's source.
 
     Args:
-        source_code: Source of a single method/function (matches how the
-            existing pipeline already treats each CSV row's vulnerable_code/
-            fixed_code — the whole method text, not a pre-split snippet).
+        source_code: Source of a single method/function, a bare statement
+            snippet, or a full source file.
         language: canonical language key (as ExtractorRegistry knows it).
         schema: this language's LanguageFeatureSchema (see langs/*.py).
         id_prefix: `{repo}:{file}:{function}` per context.md's own
@@ -124,10 +136,7 @@ def build_statement_tree(
         (roots, source_bytes): the top-level (nesting_depth=0) StatementNodes
         — each carries its own nested `.children`, use flatten() to get every
         node as a flat list — and the exact encoded bytes their `ast_node`
-        byte offsets are relative to (not necessarily `source_code.encode()`
-        verbatim: TypeScript's isolated-method wrapping prepends a dummy
-        class). Callers that slice text by byte offset (labeler.py's
-        local_scope_text) must use these bytes, not their own re-encoding.
+        byte offsets are relative to.
     """
     if not isinstance(source_code, str) or not source_code.strip():
         return [], b""
@@ -210,4 +219,18 @@ def build_statement_tree(
         return results
 
     roots = walk_container(container_root, None, 0, "function_body")
+
+    # Fallback for whole-file inputs (e.g. CVEFixes.csv) where the first
+    # function node is empty or an expression-bodied arrow function: check
+    # subsequent function bodies, and finally the root node itself.
+    if not roots and container_root is not tree.root_node:
+        for alt_func in _find_all_functions(tree.root_node, function_node_types)[1:]:
+            alt_body = alt_func.child_by_field_name("body")
+            if alt_body is not None:
+                roots = walk_container(alt_body, None, 0, "function_body")
+                if roots:
+                    break
+        if not roots:
+            roots = walk_container(tree.root_node, None, 0, "function_body")
+
     return roots, source_bytes

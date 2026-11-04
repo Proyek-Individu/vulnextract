@@ -6,9 +6,17 @@
 # File ini aman di-commit ke git — isinya bukan rahasia.
 # Untuk nilai rahasia (API key, token, dsb.), pakai .env (lihat .env.example).
 
-# Path lokal ATAU URL (http/https) ke file CSV input. pandas.read_csv
-# mendukung keduanya, jadi boleh diarahkan ke file lokal maupun link publik.
+# Path lokal ATAU URL (http/https) ke file CSV input.
+# Mendukung berbagai format dataset secara otomatis:
+#   - data/input/cve_fix_pairs.csv
+#   - data/input/code_vulnerabilities.csv
+#   - data/input/CVEFixes.csv
+#   - data/input/Security Vulnerabilities.csv
 input_file: data/input/cve_fix_pairs.csv
+
+# Batas maksimum baris yang dibaca dari file CSV input (0 = baca semua baris).
+# Berguna untuk dataset berukuran sangat besar seperti CVEFixes.csv (~1.5 GB).
+max_rows: 5000
 
 # Path file output per mode.
 output:
@@ -28,10 +36,10 @@ verbose: false
 # membandingkan data MENTAH vs data hasil SPLIT (mode features).
 # ------------------------------------------------------------
 classification:
-  # Data mentah: CSV pasangan vulnerable/fixed per method (sama seperti input_file).
+  # Data mentah: CSV dataset input (format apa pun yang didukung).
   raw_input: data/input/cve_fix_pairs.csv
-  # Data hasil split (output menu 2). Kalau file belum ada, menu 3 otomatis
-  # menjalankan ekstraksi features dulu dari raw_input.
+  # Data hasil split (output menu 2). Kalau file belum ada atau berasal dari
+  # dataset berbeda, menu 3 otomatis menjalankan ekstraksi features dulu.
   split_input: data/output/output_statement_features.csv
   # Tiap run membuat subfolder run_YYYYmmdd_HHMMSS di sini.
   output_dir: data/output/classification

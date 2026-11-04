@@ -19,15 +19,22 @@ from sklearn.preprocessing import StandardScaler
 
 from ..config import (
     DEFAULT_CLASSIFICATION,
+    DEFAULT_MAX_ROWS,
     as_input_path,
     is_url,
     resolve_path,
+)
+from ..dataset_loader import (
+    ensure_binary_classes_for_classification,
+    load_dataset,
+    normalize_dataframe,
 )
 from ..feature_pipeline import FeatureExtractionPipeline
 from . import report
 from .datasets import (
     RawFeatureBuilder,
     StatementFeatureBuilder,
+    _ROW_INDEX_RE,
     build_raw_methods,
     build_statements,
     make_folds,
@@ -49,6 +56,27 @@ def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any
         else:
             merged[key] = value
     return merged
+
+
+def _split_matches_raw(split_df: pd.DataFrame, raw_df: pd.DataFrame) -> bool:
+    """Checks whether `split_df` was extracted from `raw_df` (same row indices,
+    matching CVE IDs, and both classes present if raw_df has both classes)."""
+    if split_df is None or split_df.empty or "statement_id" not in split_df.columns:
+        return False
+    matches = split_df["statement_id"].astype(str).map(
+        lambda s: (_ROW_INDEX_RE.findall(s) or [(None, None)])[-1]
+    )
+    row_indices = [int(m[0]) for m in matches if m[0] is not None]
+    if not row_indices or not set(row_indices).issubset(set(raw_df.index)):
+        return False
+    if "cve_id" in split_df.columns and "cve_id" in raw_df.columns:
+        raw_cves = raw_df.loc[row_indices, "cve_id"].fillna("").astype(str).to_numpy()
+        split_cves = split_df["cve_id"].fillna("").astype(str).to_numpy()
+        if len(raw_cves) == len(split_cves) and (raw_cves != split_cves).any():
+            return False
+    if "label" in split_df.columns and split_df["label"].nunique() < 2:
+        return False
+    return True
 
 
 @dataclass
@@ -73,18 +101,31 @@ class ClassificationPipeline:
     def run(self) -> ClassificationResult:
         raw_input = as_input_path(str(self.cfg["raw_input"]))
         split_input = resolve_path(str(self.cfg["split_input"]))
+        max_rows = self.cfg.get("max_rows", DEFAULT_MAX_ROWS)
 
         if not is_url(str(raw_input)) and not Path(raw_input).exists():
             raise FileNotFoundError(f"Data mentah tidak ditemukan: {raw_input}")
         logger.info(f"Membaca data mentah dari {raw_input}...")
-        raw_df = pd.read_csv(raw_input)
+        raw_df = load_dataset(raw_input, max_rows=max_rows)
+        raw_df = ensure_binary_classes_for_classification(raw_df)
 
+        split_df = None
         if split_input.exists():
             logger.info(f"Membaca data split dari {split_input}...")
-            split_df = pd.read_csv(split_input)
-        else:
-            logger.info(f"Data split belum ada di {split_input} — menjalankan ekstraksi features dulu...")
-            split_df, _ = FeatureExtractionPipeline().process_file(raw_input, split_input)
+            candidate_split = pd.read_csv(split_input, low_memory=False)
+            if _split_matches_raw(candidate_split, raw_df):
+                split_df = candidate_split
+            else:
+                logger.info(
+                    "Data split yang ada berasal dari dataset berbeda atau perlu diperbarui — "
+                    "menjalankan ulang ekstraksi features dari data mentah saat ini..."
+                )
+
+        if split_df is None:
+            logger.info(f"Menjalankan ekstraksi features ke {split_input}...")
+            split_df, _ = FeatureExtractionPipeline(max_rows=max_rows).process_dataframe(raw_df)
+            split_input.parent.mkdir(parents=True, exist_ok=True)
+            split_df.to_csv(split_input, index=False, encoding="utf-8")
 
         return self.run_frames(raw_df, split_df, resolve_path(str(self.cfg["output_dir"])))
 
@@ -95,6 +136,12 @@ class ClassificationPipeline:
         random_state = int(split_cfg.get("random_state", 42))
         threshold = float(cfg.get("threshold", 0.5))
         group_by = str(split_cfg.get("group_by", "method"))
+
+        raw_df = normalize_dataframe(raw_df)
+        if raw_df["vulnerable_code"].fillna("").str.strip().astype(bool).any() and not raw_df["fixed_code"].fillna("").str.strip().astype(bool).any():
+            raw_df = ensure_binary_classes_for_classification(raw_df)
+            if not _split_matches_raw(split_df, raw_df):
+                split_df, _ = FeatureExtractionPipeline().process_dataframe(raw_df)
 
         raw_methods = build_raw_methods(raw_df, group_by)
         statements = build_statements(split_df, raw_df, group_by)
