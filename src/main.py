@@ -194,7 +194,6 @@ def _menu_run_features() -> None:
     print()
     print("--- Ekstraksi features (statement-level, berlabel, untuk ML) ---")
     input_path = _ask("Input file", str(DEFAULT_INPUT_FILE))
-    output_path = _ask("Output file", str(DEFAULT_FEATURES_OUTPUT_FILE))
     max_rows_str = _ask("Batas baris maksimum (0 = semua)", str(DEFAULT_MAX_ROWS or 0))
     verbose = _ask_yes_no("Aktifkan log debug?", default_yes=DEFAULT_VERBOSE)
 
@@ -202,7 +201,12 @@ def _menu_run_features() -> None:
         print("Dibatalkan.")
         return
 
-    run_features(input_path, Path(output_path), verbose, _parse_max_rows_input(max_rows_str))
+    run_features(
+        input_path,
+        DEFAULT_FEATURES_OUTPUT_FILE,
+        verbose,
+        _parse_max_rows_input(max_rows_str),
+    )
 
 
 def _model_names(specs) -> str:
@@ -325,9 +329,9 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help=(
-            "Path to output CSV file "
-            f"(default: {DEFAULT_OUTPUT_FILE} for --mode pairs, "
-            f"{DEFAULT_FEATURES_OUTPUT_FILE} for --mode features); "
+            "Path to output CSV file for --mode pairs "
+            f"(default: {DEFAULT_OUTPUT_FILE}); --mode features always appends to "
+            f"{DEFAULT_FEATURES_OUTPUT_FILE}; "
             f"for --mode classify this is the output FOLDER (default: {DEFAULT_CLASSIFICATION_OUTPUT_DIR})"
         )
     )

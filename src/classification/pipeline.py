@@ -19,6 +19,7 @@ from sklearn.preprocessing import StandardScaler
 
 from ..config import (
     DEFAULT_CLASSIFICATION,
+    DEFAULT_FEATURES_OUTPUT_FILE,
     DEFAULT_MAX_ROWS,
     as_input_path,
     is_url,
@@ -30,6 +31,7 @@ from ..dataset_loader import (
     normalize_dataframe,
 )
 from ..feature_pipeline import FeatureExtractionPipeline
+from ..output_writer import append_statement_features
 from . import report
 from .datasets import (
     RawFeatureBuilder,
@@ -110,7 +112,7 @@ class ClassificationPipeline:
         raw_df = ensure_binary_classes_for_classification(raw_df)
 
         split_df = None
-        if split_input.exists():
+        if split_input.exists() and split_input.resolve() != DEFAULT_FEATURES_OUTPUT_FILE.resolve():
             logger.info(f"Membaca data split dari {split_input}...")
             candidate_split = pd.read_csv(split_input, low_memory=False)
             if _split_matches_raw(candidate_split, raw_df):
@@ -122,10 +124,9 @@ class ClassificationPipeline:
                 )
 
         if split_df is None:
-            logger.info(f"Menjalankan ekstraksi features ke {split_input}...")
+            logger.info("Menjalankan ekstraksi features dan menambahkan hasil ke output pusat...")
             split_df, _ = FeatureExtractionPipeline(max_rows=max_rows).process_dataframe(raw_df)
-            split_input.parent.mkdir(parents=True, exist_ok=True)
-            split_df.to_csv(split_input, index=False, encoding="utf-8")
+            append_statement_features(split_df)
 
         return self.run_frames(raw_df, split_df, resolve_path(str(self.cfg["output_dir"])))
 
@@ -142,6 +143,7 @@ class ClassificationPipeline:
             raw_df = ensure_binary_classes_for_classification(raw_df)
             if not _split_matches_raw(split_df, raw_df):
                 split_df, _ = FeatureExtractionPipeline().process_dataframe(raw_df)
+                append_statement_features(split_df)
 
         raw_methods = build_raw_methods(raw_df, group_by)
         statements = build_statements(split_df, raw_df, group_by)

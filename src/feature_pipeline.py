@@ -22,13 +22,14 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from .config import DEFAULT_MAX_ROWS
+from .config import DEFAULT_FEATURES_OUTPUT_FILE, DEFAULT_MAX_ROWS
 from .dataset_loader import load_dataset, normalize_dataframe
 from .features.feature_extractor import extract_features
 from .features.labeler import label_statements
 from .features.langs import get_schema
 from .features.models import FeaturePipelineStats, StatementRecord
 from .features.tree_builder import build_statement_tree, flatten
+from .output_writer import append_statement_features
 
 logger = logging.getLogger(__name__)
 
@@ -64,16 +65,19 @@ class FeatureExtractionPipeline:
         output_path: Optional[Union[str, Path]] = None,
         max_rows: Optional[int] = None,
     ) -> Tuple[pd.DataFrame, FeaturePipelineStats]:
+        canonical_output_path = Path(DEFAULT_FEATURES_OUTPUT_FILE).resolve()
+        if output_path is not None and Path(output_path).resolve() != canonical_output_path:
+            raise ValueError(
+                "Statement features are stored only in the shared output file "
+                f"{canonical_output_path}; per-dataset output paths are not supported."
+            )
+
         effective_max_rows = max_rows if max_rows is not None else self.max_rows
         df = load_dataset(input_path, max_rows=effective_max_rows)
 
         output_df, stats = self.process_dataframe(df)
 
-        if output_path is not None:
-            output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Saving {len(output_df)} statement rows to {output_path}...")
-            output_df.to_csv(output_path, index=False, encoding="utf-8")
+        append_statement_features(output_df, canonical_output_path)
 
         return output_df, stats
 

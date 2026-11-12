@@ -18,7 +18,7 @@ input_file: data/input/cve_fix_pairs.csv
 # Berguna untuk dataset berukuran sangat besar seperti CVEFixes.csv (~1.5 GB).
 max_rows: 5000
 
-# Path file output per mode.
+# Path output mode pairs dan arsip bersama mode features (append-only).
 output:
   pairs: data/output/output_csv_fix_pairs.csv
   features: data/output/output_statement_features.csv
@@ -38,8 +38,8 @@ verbose: false
 classification:
   # Data mentah: CSV dataset input (format apa pun yang didukung).
   raw_input: data/input/cve_fix_pairs.csv
-  # Data hasil split (output menu 2). Kalau file belum ada atau berasal dari
-  # dataset berbeda, menu 3 otomatis menjalankan ekstraksi features dulu.
+  # Arsip pusat features. Karena file ini mengakumulasi banyak dataset,
+  # menu 3 membangun split untuk input saat ini alih-alih membacanya sebagai cache.
   split_input: data/output/output_statement_features.csv
   # Tiap run membuat subfolder run_YYYYmmdd_HHMMSS di sini.
   output_dir: data/output/classification

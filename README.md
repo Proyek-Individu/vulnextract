@@ -65,7 +65,7 @@ Akan muncul menu:
 Pilih menu [1]:
 ```
 
-Pilih mode, lalu untuk tiap pertanyaan berikutnya (input file, output file, batas baris, dst.) tinggal tekan **Enter** untuk pakai nilai default dari `global.yaml`, atau ketik nilai lain kalau mau override khusus untuk sekali jalan itu saja. Setelah proses selesai, ditanya mau kembali ke menu atau keluar.
+Pilih mode, lalu untuk pertanyaan berikutnya tinggal tekan **Enter** untuk memakai nilai default dari `global.yaml`, atau ketik nilai lain untuk override. Mode `features` selalu menulis ke arsip pusat tanpa meminta output file. Setelah proses selesai, ditanya mau kembali ke menu atau keluar.
 
 Menu **"3. Klasifikasi vulnerability"** melatih model ML yang diatur di `global.yaml` (default: Random Forest) dan membandingkan performa klasifikasi dari **data mentah** vs **data hasil split** mode `features`, lengkap dengan XAI — lihat [Klasifikasi & XAI](#klasifikasi--xai-menu-3).
 
@@ -76,17 +76,19 @@ Beri argumen CLI apa saja dan menu interaktif otomatis dilewati:
 ```bash
 python src/main.py -m features
 python src/main.py -m pairs -g method -s strict
-python src/main.py -m features -i data/input/code_vulnerabilities.csv -o data/output/features_code_vuln.csv
-python src/main.py -m features -i data/input/CVEFixes.csv --max-rows 5000 -o data/output/features_cvefixes.csv
-python src/main.py -m features -i "data/input/Security Vulnerabilities.csv" -o data/output/features_sec_vuln.csv
+python src/main.py -m features -i data/input/code_vulnerabilities.csv
+python src/main.py -m features -i data/input/CVEFixes.csv --max-rows 5000
+python src/main.py -m features -i "data/input/Security Vulnerabilities.csv"
 python src/main.py -m classify
 python src/main.py -m classify --models random_forest,logistic_regression --cv-folds 5 --formats xlsx
 ```
 
+Semua hasil mode `features` ditambahkan ke satu arsip, `data/output/output_statement_features.csv`. Kolom baru diselaraskan mengikuti header arsip; bila nama kolom fiturnya berbeda, append ditolak tanpa mengubah file lama. Jangan gunakan `-o` untuk menyimpan features ke file per dataset.
+
 | Opsi | Deskripsi | Default (dari global.yaml) |
 |---|---|---|
 | `-i`, `--input` | Path atau URL file CSV input (mode `classify`: data mentah) | `input_file` / `classification.raw_input` |
-| `-o`, `--output` | Path file CSV output (mode `classify`: **folder** output) | `output.pairs` / `output.features` / `classification.output_dir` sesuai `--mode` |
+| `-o`, `--output` | Path output CSV (mode `pairs`) atau **folder** hasil (mode `classify`); mode `features` selalu memakai arsip bersama | `output.pairs` / `classification.output_dir` |
 | `-m`, `--mode` | `pairs`, `features`, atau `classify` | `pairs` |
 | `--max-rows` | Batas maksimum baris yang dibaca dari CSV input (`0` = semua baris) | `max_rows` (`5000`) |
 | `-g`, `--granularity` | `statement` atau `method` (hanya mode `pairs`) | `pairs.granularity` |
@@ -111,7 +113,7 @@ max_rows: 5000                             # batas baris input (0 = baca semua)
 
 output:
   pairs: data/output/output_csv_fix_pairs.csv
-  features: data/output/output_statement_features.csv
+  features: data/output/output_statement_features.csv  # arsip append-only bersama
 
 pairs:
   granularity: statement   # statement | method
@@ -189,7 +191,7 @@ Hal penting soal pembagian data:
 - Train/test dibagi **per grup** (default `group_by: method` = repo+file+method), bukan per baris. Versi vulnerable dan fixed dari method yang sama (teksnya hampir identik) tidak boleh terpisah ke train dan test, karena itu kebocoran data. `test_size` dihitung atas jumlah grup, jadi porsi *statement* di test bisa berbeda dari 20%.
 - `align_samples: true` mempersempit data mentah ke method yang juga ada di data split (mode `features` hanya mendukung Go/Python/JS/TS/PHP), supaya perbandingannya adil.
 - Kolom ID/lokasi dan proxy label (`origin`, `vulnerability_type`, `cve_id`, `line_start`, …) otomatis dibuang dari fitur split.
-- Data split ditautkan ke baris CSV mentah lewat index baris di dalam `statement_id`. Kalau file `split_input` belum ada atau berasal dari dataset mentah yang berbeda, menu 3 menjalankan ekstraksi features dulu secara otomatis.
+- Data split ditautkan ke baris CSV mentah lewat index baris di dalam `statement_id`. Arsip pusat append-only tidak dipakai sebagai cache untuk satu dataset; bila diperlukan, menu 3 membangun split untuk input saat ini di memori dan menambahkannya ke arsip pusat.
 - Bila dataset input mentah hanya memiliki sampel positif/vulnerable tanpa kelas aman (seperti `code_vulnerabilities.csv`), mode `classify` otomatis membentuk baseline pasangan kode aman (remediated) agar klasifikasi biner dan XAI tetap dapat dijalankan.
 
 ### Memilih model
@@ -239,7 +241,7 @@ Tiap run menulis folder baru `data/output/classification/run_YYYYmmdd_HHMMSS/` b
 ## Menjalankan test
 
 ```bash
-python -m unittest tests.test_pipeline tests.test_features tests.test_classification -v
+python -m unittest tests.test_pipeline tests.test_features tests.test_output_writer tests.test_classification -v
 ```
 
 ## Struktur proyek
@@ -252,7 +254,8 @@ src/
   config.py                   # baca global.yaml + .env, expose DEFAULT_*
   dataset_loader.py            # adapter & normalizer universal untuk berbagai format dataset CSV
   pipeline.py                  # mode "pairs": baca CSV -> normalisasi -> extract -> pairing -> tulis CSV
-  feature_pipeline.py          # mode "features": baca CSV -> normalisasi -> tree -> label -> fitur -> tulis CSV
+  feature_pipeline.py          # mode "features": baca CSV -> normalisasi -> tree -> label -> fitur
+  output_writer.py              # writer append-only bersama untuk arsip statement features
   classification/               # mode "classify" (menu 3): ML + XAI, data mentah vs data split
     model_registry.py            # alias model + loader kelas sklearn-compatible dari global.yaml
     datasets.py                  # dataset raw (method) & split (statement), pembagian per grup, matriks fitur

@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -18,6 +19,7 @@ from src.classification.datasets import (
 )
 from src.classification.metrics import aggregate_to_methods
 from src.feature_pipeline import FeatureExtractionPipeline
+from src.output_writer import append_statement_features
 
 
 def _synthetic_raw_df(n_pairs: int = 16) -> pd.DataFrame:
@@ -191,6 +193,37 @@ class TestClassificationPipeline(unittest.TestCase):
             self.assertIn(sheet, sheets)
         importance = pd.read_csv(result.run_dir / "feature_importance.csv")
         self.assertTrue(importance["permutation_mean"].notna().any())
+
+    def test_run_appends_generated_features_without_using_archive_as_cache(self):
+        raw_df = _synthetic_raw_df()
+        input_path = self.tmp / "raw_dataset.csv"
+        output_path = self.tmp / "output_statement_features.csv"
+        raw_df.to_csv(input_path, index=False)
+
+        prior_features, _ = FeatureExtractionPipeline().process_dataframe(raw_df.head(2))
+        append_statement_features(prior_features, output_path)
+        previous_bytes = output_path.read_bytes()
+        expected_features, _ = FeatureExtractionPipeline().process_dataframe(raw_df)
+
+        pipeline = ClassificationPipeline({
+            "raw_input": str(input_path),
+            "split_input": str(output_path),
+            "output_dir": str(self.tmp / "classification"),
+            "models": [{"name": "random_forest", "params": {"n_estimators": 5}}],
+            "output_formats": ["csv"],
+            "xai": {"enabled": False},
+            "split": {"test_size": 0.25, "cv_folds": 0, "random_state": 0},
+        })
+        with patch("src.classification.pipeline.DEFAULT_FEATURES_OUTPUT_FILE", output_path), patch(
+            "src.classification.pipeline.append_statement_features",
+            side_effect=lambda frame: append_statement_features(frame, output_path),
+        ):
+            pipeline.run()
+
+        self.assertTrue(output_path.read_bytes().startswith(previous_bytes))
+        stored = pd.read_csv(output_path)
+        self.assertEqual(len(stored), len(prior_features) + len(expected_features))
+        self.assertEqual(list(stored.columns), list(expected_features.columns))
 
 
 if __name__ == "__main__":
