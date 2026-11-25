@@ -4,6 +4,8 @@ Unit tests for the hierarchical statement-level feature pipeline
 """
 
 import unittest
+import urllib.error
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -184,6 +186,90 @@ class TestFeatureExtractor(unittest.TestCase):
 
 
 class TestFeaturePipeline(unittest.TestCase):
+    def test_vulnerability_type_follows_final_label_for_each_origin(self):
+        changed = "def changed(x):\n    check(x)\n    return x\n"
+        fixed = "def changed(x):\n    check(x)\n    return x + 1\n"
+        same = "def unchanged(x):\n    return x\n"
+        blank_type_vulnerable = "def no_type(x):\n    return 1\n"
+        blank_type_fixed = "def no_type(x):\n    return 2\n"
+        df = pd.DataFrame([
+            {
+                "cve_id": "CVE-TYPE-1", "vulnerability_type": "SQL Injection",
+                "language": "python", "file": "a.py", "method": "changed",
+                "vulnerable_code": changed, "fixed_code": fixed, "commit_hash": "h1",
+            },
+            {
+                "cve_id": "CVE-TYPE-2", "vulnerability_type": "XSS",
+                "language": "python", "file": "b.py", "method": "unchanged",
+                "vulnerable_code": same, "fixed_code": same, "commit_hash": "h2",
+            },
+            {
+                "cve_id": "CVE-TYPE-3", "vulnerability_type": "",
+                "language": "python", "file": "c.py", "method": "no_type",
+                "vulnerable_code": blank_type_vulnerable, "fixed_code": blank_type_fixed,
+                "commit_hash": "h3",
+            },
+            {
+                "cve_id": "CVE-TYPE-4", "vulnerability_type": "Path Traversal",
+                "language": "python", "file": "d.py", "method": "fixed_only",
+                "vulnerable_code": "", "fixed_code": "def fixed_only():\n    return 0\n",
+                "commit_hash": "h4",
+            },
+        ])
+        output_df, _stats = FeatureExtractionPipeline().process_dataframe(df)
+        self.assertEqual(set(output_df["origin"]), {"vulnerable", "fixed", "unchanged"})
+        self.assertEqual(
+            set(map(tuple, output_df[["origin", "label"]].drop_duplicates().to_numpy())),
+            {("vulnerable", 0), ("vulnerable", 1), ("fixed", 0), ("unchanged", 0)},
+        )
+        self.assertTrue((output_df.loc[output_df["label"] == 0, "vulnerability_type"] == "none").all())
+        positive = output_df[output_df["label"] == 1]
+        self.assertTrue((positive.loc[positive["cve_id"] == "CVE-TYPE-1", "vulnerability_type"] == "SQL Injection").all())
+        self.assertTrue((positive.loc[positive["cve_id"] == "CVE-TYPE-3", "vulnerability_type"] == "unknown").all())
+
+    def test_paired_loader_preserves_each_commit_hash_alias(self):
+        aliases = (
+            "commit_hash", "hash", "sha", "commit", "commit_id", "commit_sha",
+            "fix_commit", "fixing_commit",
+        )
+        for alias in aliases:
+            with self.subTest(alias=alias):
+                df = pd.DataFrame({
+                    "cve_id": ["CVE-ALIAS"],
+                    "language": ["python"],
+                    "vulnerable_code": ["def f(x):\n    return x\n"],
+                    "fixed_code": ["def f(x):\n    return x + 1\n"],
+                    alias: ["abc123"],
+                })
+                normalized = normalize_dataframe(df)
+                self.assertEqual(normalized.loc[0, "commit_hash"], "abc123")
+                output_df, _stats = FeatureExtractionPipeline().process_dataframe(df)
+                self.assertGreater(len(output_df), 0)
+                self.assertTrue((output_df["commit_hash"] == "abc123").all())
+
+    def test_advisory_synthesis_is_disabled_by_default_and_opt_in(self):
+        advisory = pd.DataFrame({
+            "Title": ["Sample SQL injection advisory"],
+            "Summary": ["CVE-2024-12345 affects example (pypi)"],
+            "Severity": ["Moderate"],
+            "Link": ["https://github.com/advisories/GHSA-1234-abcd-efgh"],
+        })
+        with patch(
+            "src.dataset_loader.urllib.request.urlopen",
+            side_effect=urllib.error.URLError("offline"),
+        ):
+            output_df, stats = FeatureExtractionPipeline().process_dataframe(advisory)
+            self.assertEqual(stats.total_input_rows, 1)
+            self.assertEqual(stats.total_output_rows, 0)
+            self.assertEqual(stats.skipped_advisory_no_commit_diff, 1)
+
+            synthetic_df, synthetic_stats = FeatureExtractionPipeline(
+                allow_synthetic_fallback=True
+            ).process_dataframe(advisory)
+        self.assertGreater(synthetic_stats.total_output_rows, 0)
+        self.assertGreater(len(synthetic_df), 0)
+        self.assertEqual(synthetic_stats.skipped_advisory_no_commit_diff, 0)
+
     def test_process_dataframe_end_to_end(self):
         data = {
             "cve_id": ["CVE-TEST-1"],
@@ -220,7 +306,8 @@ class TestFeaturePipeline(unittest.TestCase):
         self.assertTrue((fixed_rows["label"] == 0).all())
         self.assertTrue((fixed_rows["vulnerability_type"] == "none").all())
         vuln_rows = output_df[output_df["origin"] == "vulnerable"]
-        self.assertTrue((vuln_rows["vulnerability_type"] == "SQL Injection").all())
+        self.assertTrue((vuln_rows.loc[vuln_rows["label"] == 0, "vulnerability_type"] == "none").all())
+        self.assertTrue((vuln_rows.loc[vuln_rows["label"] == 1, "vulnerability_type"] == "SQL Injection").all())
         # statement_id must not collide between the two origins for the same method.
         self.assertEqual(len(output_df["statement_id"].unique()), len(output_df))
 
@@ -286,10 +373,7 @@ class TestFeaturePipeline(unittest.TestCase):
         self.assertEqual(stats.total_from_vulnerable_side, 0)
         self.assertEqual(stats.total_from_fixed_side, 0)
 
-    def test_duplicate_rows_do_not_collide_statement_ids(self):
-        # Real input data has a handful of literal duplicate rows (same repo/
-        # file/method/commit_hash/cve_id) — statement_id must still be unique
-        # per row, not just per (repo, file, method, commit_hash).
+    def test_duplicate_input_rows_are_skipped_before_extraction(self):
         row = {
             "cve_id": "CVE-DUP",
             "vulnerability_type": "Path Traversal",
@@ -303,8 +387,9 @@ class TestFeaturePipeline(unittest.TestCase):
         }
         df = pd.DataFrame([row, row])  # two identical rows
         pipeline = FeatureExtractionPipeline()
-        output_df, _stats = pipeline.process_dataframe(df)
+        output_df, stats = pipeline.process_dataframe(df)
         self.assertEqual(len(output_df), len(output_df["statement_id"].unique()))
+        self.assertEqual(stats.skipped_duplicate_input_rows, 1)
 
     def test_unsupported_language_skipped(self):
         data = {
@@ -368,7 +453,7 @@ class TestFeaturePipeline(unittest.TestCase):
             "Summary": ["CVE-2023-40024was published\n                        forscancodeio(pip)Aug 15, 2023"],
             "Link": ["https://github.com/advisories/GHSA-6xcx-gx7r-rccj"],
         })
-        norm_df = normalize_dataframe(df, fetch_github=False)
+        norm_df = normalize_dataframe(df, fetch_github=False, allow_synthetic_fallback=True)
         pipeline = FeatureExtractionPipeline()
         output_df, stats = pipeline.process_dataframe(norm_df)
         self.assertEqual(stats.total_input_rows, 1)

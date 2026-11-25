@@ -17,12 +17,11 @@ STATEMENT_NODE_TYPES = frozenset({
     "if_statement", "for_statement", "expression_switch_statement", "type_switch_statement",
     "select_statement", "go_statement", "defer_statement", "break_statement",
     "continue_statement", "labeled_statement", "fallthrough_statement", "send_statement",
-    "goto_statement",
+    "goto_statement", "receive_statement",
 })
 
 TRANSPARENT_NODE_TYPES = frozenset({
-    "block", "statement_list", "expression_case", "default_case", "type_case",
-    "communication_case",
+    "block", "statement_list", "communication_case",
 })
 
 STATEMENT_TYPE_MAP = {
@@ -47,7 +46,15 @@ STATEMENT_TYPE_MAP = {
     "fallthrough_statement": "fallthrough",
     "send_statement": "send",
     "goto_statement": "goto",
+    "receive_statement": "receive",
+    "expression_case": "switch_case",
+    "default_case": "switch_case",
+    "type_case": "switch_case",
 }
+
+STATEMENT_NODE_TYPES = STATEMENT_NODE_TYPES | frozenset({
+    "expression_case", "default_case", "type_case",
+})
 
 BLOCK_TYPE_BY_FIELD = {
     ("if_statement", "consequence"): "if_true_branch",
@@ -148,6 +155,10 @@ STDLIB_PREFIXES = frozenset({
     "context", "errors", "sync", "bytes", "encoding", "json", "sql", "exec",
     "regexp", "path", "filepath", "log", "reflect", "sort", "gob",
 })
+STDLIB_CALL_NAMES = frozenset({
+    "append", "cap", "clear", "close", "complex", "copy", "delete", "imag",
+    "len", "make", "max", "min", "new", "panic", "print", "println", "real", "recover",
+})
 
 
 def _refine_statement_type(node) -> Optional[str]:
@@ -168,6 +179,7 @@ SCHEMA = LanguageFeatureSchema(
     sink_flags=SINK_FLAGS,
     sanitizer_names=SANITIZER_NAMES,
     stdlib_prefixes=STDLIB_PREFIXES,
+    stdlib_call_names=STDLIB_CALL_NAMES,
     identifier_node_type="identifier",
     concat_or_format_node_types=CONCAT_OR_FORMAT_NODE_TYPES,
     concat_operator="+",

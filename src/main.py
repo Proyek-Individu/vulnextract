@@ -22,6 +22,7 @@ if str(CURRENT_DIR) not in sys.path:
 try:
     from src.config import (
         DEFAULT_FEATURES_OUTPUT_FILE,
+        DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
         DEFAULT_INPUT_FILE,
         DEFAULT_MAX_ROWS,
         DEFAULT_VERBOSE,
@@ -30,6 +31,7 @@ try:
 except ImportError:
     from config import (
         DEFAULT_FEATURES_OUTPUT_FILE,
+        DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
         DEFAULT_INPUT_FILE,
         DEFAULT_MAX_ROWS,
         DEFAULT_VERBOSE,
@@ -47,9 +49,13 @@ def run_features(
     input_path,
     verbose: bool = False,
     max_rows: Optional[int] = DEFAULT_MAX_ROWS,
+    allow_synthetic_fallback: bool = DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
 ) -> None:
     setup_logging(verbose)
-    pipeline = FeatureExtractionPipeline(max_rows=max_rows)
+    pipeline = FeatureExtractionPipeline(
+        max_rows=max_rows,
+        allow_synthetic_fallback=allow_synthetic_fallback,
+    )
     _, stats = pipeline.process_file(
         input_path=input_path,
         output_path=DEFAULT_FEATURES_OUTPUT_FILE,
@@ -68,6 +74,15 @@ def run_features(
     print(f"Skipped unsupported language : {stats.skipped_unsupported_language}")
     print(f"Skipped no-code               : {stats.skipped_no_code}")
     print(f"Skipped extraction failure    : {stats.skipped_extraction_failure}")
+    print(f"Dilewati: input ganda: {stats.skipped_duplicate_input_rows}")
+    print(f"Dilewati: statement sudah ada di arsip: {stats.skipped_duplicate_output_rows}")
+    print(
+        "Dilewati: diff commit tidak tersedia (fallback sintesis nonaktif): "
+        f"{stats.skipped_advisory_no_commit_diff}"
+    )
+    for language, node_counts in sorted(stats.unknown_statement_nodes.items()):
+        for node_type, count in sorted(node_counts.items()):
+            print(f"Node tak dikenal dilewati: bahasa={language} {node_type}={count}")
     print(f"Output file : {DEFAULT_FEATURES_OUTPUT_FILE}")
 
 
@@ -163,6 +178,12 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_VERBOSE,
         help="Enable verbose debug logging.",
     )
+    parser.add_argument(
+        "--allow-synthetic",
+        action="store_true",
+        default=DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
+        help="Allow local synthetic AST fallback for advisories without a commit diff.",
+    )
     return parser.parse_args()
 
 
@@ -179,7 +200,12 @@ def main() -> None:
     )
 
     try:
-        run_features(args.input, args.verbose, max_rows=max_rows)
+        run_features(
+            args.input,
+            args.verbose,
+            max_rows=max_rows,
+            allow_synthetic_fallback=args.allow_synthetic,
+        )
     except Exception as error:
         logging.error(f"Execution failed: {error}", exc_info=args.verbose)
         sys.exit(1)

@@ -31,6 +31,9 @@ pairs:
 # Aktifkan log debug secara default (bisa dioverride lewat -v saat pakai CLI flag).
 verbose: false
 
+# Sintesis kode AST lokal untuk advisory tidak dijalankan kecuali diaktifkan.
+allow_synthetic_fallback: false
+
 # ------------------------------------------------------------
 # Mode "classify" (menu 3): klasifikasi ML + XAI,
 # membandingkan data MENTAH vs data hasil SPLIT (mode features).

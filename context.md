@@ -13,6 +13,21 @@
 
 ---
 
+## Origin dan aturan `vulnerability_type`
+
+Setiap baris output memiliki satu `origin` yang menyatakan sisi kode sumbernya. Nilai `vulnerability_type` mengikuti label final per statement:
+
+| `origin` | Sumber statement | `label` | `vulnerability_type` |
+|---|---|---:|---|
+| `vulnerable` | `vulnerable_code` | `0` | `none` |
+| `vulnerable` | `vulnerable_code` | `1` | Jenis kerentanan asli dari CSV input; `unknown` bila nilainya kosong |
+| `fixed` | `fixed_code` | `0` | `none` |
+| `unchanged` | Kode vulnerable dan fixed identik | `0` | `none` |
+
+Label akhir ditentukan pipeline setelah diff atau aturan sink-aware selesai. Jenis kerentanan disesuaikan sesudahnya, sebelum record ditulis.
+
+---
+
 ## A. Identitas & Relasi Struktural
 
 ### `statement_id`
@@ -31,7 +46,7 @@
 **Kenapa penting:** Statement yang sangat dalam nesting-nya sering berkorelasi dengan kompleksitas kontrol alur — salah satu proxy kompleksitas yang dipakai di literatur vulnerability prediction (kompleksitas tinggi → lebih sulit diaudit manual → riskan menyembunyikan bug).
 
 ### `statement_type`
-**Definisi:** Kategori umum lintas bahasa: `assign`, `call_expr`, `if`, `for`, `while`, `try_catch`, `return`, `import`, `function_def`, `throw_raise`, `switch_case`, dst.
+**Definisi:** Kategori umum lintas bahasa: `assign`, `call_expr`, `if`, `for`, `while`, `try_catch`, `catch`, `return`, `import`, `function_def`, `throw_raise`, `switch_case`, dst. Pemetaan tambahan yang digunakan: PHP `global_decl` dan `unset`, Go `receive` (hanya untuk receive statement yang berdiri sendiri; kepala komunikasi `select case <-x:` bukan baris), serta Python `decorated_def`. Case switch dan setiap handler catch menjadi baris `switch_case` dan `catch`; kontribusi cyclomatic masing-masing satu. `future_import_statement` Python dipetakan ke `import`; rentang dan teks `decorated_def` mencakup decorator.
 **Cara ekstraksi:** Petakan node type dari parser masing-masing bahasa ke taksonomi umum ini (tabel mapping manual — lihat catatan di atas).
 **Kenapa penting:** Ini kolom pengelompokan paling dasar. Tanpa ini, tidak mungkin membandingkan pola antar bahasa atau memfilter statement per kategori sebelum analisis lanjutan.
 
@@ -92,6 +107,7 @@ Kategori ini yang paling langsung berkaitan dengan vulnerability class tertentu 
 ### `call_target_kind`
 **Definisi:** Kategori asal `top_level_call_name` — salah satu dari: `stdlib`, `third_party`, `user_defined`, `none`.
 **Cara ekstraksi:** Cocokkan nama fungsi terhadap daftar modul standar bahasa (mis. `os`, `net/http` untuk Go; builtin dan modul standar Python) vs import third-party vs fungsi yang didefinisikan sendiri di repo (bisa dicek dari daftar `function_def` yang sudah diekstrak sebelumnya dari repo yang sama).
+**Batas implementasi:** Klasifikasi saat ini best-effort dari import/alias dan definisi fungsi yang terlihat pada sumber yang sedang diparse, ditambah daftar prefix modul standar dan builtin per bahasa. Ini belum melakukan indeks fungsi lintas repo; nama package yang tidak dikenal dianggap third-party.
 **Kenapa penting:** Panggilan ke fungsi standar library punya profil risiko yang lebih dikenal/terdokumentasi dibanding panggilan ke fungsi custom internal repo (yang perilakunya tidak diketahui tanpa menelusuri definisinya) — kategori ini membantu memisahkan dua populasi risiko yang berbeda tanpa perlu deep-tracing setiap kali.
 
 ### `is_process_exec`
@@ -131,7 +147,7 @@ Kategori ini yang paling langsung berkaitan dengan vulnerability class tertentu 
 
 ### `uses_string_concat_or_format`
 **Definisi:** Statement membangun string lewat concatenation atau formatting (bukan parameter binding).
-**Cara ekstraksi:** Deteksi operator `+` pada string, `fmt.Sprintf`, f-string/`.format()`/`%` (Python), template literal `${}` (JS), string interpolation PHP (`"$var"` atau `.`).
+**Cara ekstraksi:** Deteksi operator concatenation bahasa, `fmt.Sprintf`, f-string/`.format()`/`%` (Python), template literal `${}` (JS), string interpolation PHP (`"$var"` atau `.`). Operator `+` yang tipe operandnya tak bisa diketahui dari syntax tree diperlakukan sebagai heuristik.
 **Kenapa penting:** Fitur pembeda paling penting antara query/command yang **parameterized (aman)** vs **dibangun manual (rawan injection)**. Kombinasi `is_db_query=true` + `uses_string_concat_or_format=true` adalah salah satu sinyal terkuat untuk SQL injection.
 
 ### `num_variables_defined`, `num_variables_used`
@@ -161,8 +177,8 @@ Kategori ini butuh informasi dari rantai `parent_statement_id`, bukan hanya stat
 **Kenapa penting:** Statement di dalam error handler (seperti contoh `except` Anda sebelumnya) sering berkaitan dengan pola **error handling yang tidak aman** (CWE-755 improper handling) — misalnya cleanup yang menghapus file tanpa validasi ulang, atau informasi error yang di-expose ke output (`is_output_render` di dalam error handler adalah kombinasi mencurigakan).
 
 ### `is_error_handling_statement`
-**Definisi:** Statement ini sendiri adalah bagian dari body except/catch (bukan sekadar berada di dalamnya secara nested lebih dalam).
-**Cara ekstraksi:** Cek apakah `parent_statement_id` langsung bertipe `try_catch`/exception handler.
+**Definisi:** Statement ini sendiri adalah bagian dari body except/catch (bukan sekadar berada di dalamnya secara nested lebih dalam); baris clause `catch`/`except` juga ditandai sebagai bagian handler.
+**Cara ekstraksi:** Cek `parent_block_type` bernilai `exception_handler` dan parent langsung bertipe `catch` atau `try_catch` untuk baris clause itu sendiri.
 **Kenapa penting:** Membedakan statement langsung di body catch vs statement yang nested lebih dalam lagi di dalamnya — granularitas tambahan untuk analisis pola error handling.
 
 ### `sanitization_call_detected`
@@ -187,6 +203,7 @@ Kategori ini butuh informasi dari rantai `parent_statement_id`, bukan hanya stat
 ### `cyclomatic_contribution`
 **Definisi:** Kontribusi statement ini terhadap cyclomatic complexity fungsi (if/for/while/case/catch masing-masing +1).
 **Cara ekstraksi:** 1 kalau `statement_type` termasuk kategori percabangan, 0 kalau tidak.
+Untuk Go `select`, kepala komunikasi case tidak dibuat sebagai baris tersendiri; jumlah cabangnya ditambahkan pada kontribusi baris `select`.
 **Kenapa penting:** Fitur klasik di literatur vulnerability prediction (kompleksitas siklomatik function-level sering dipakai sebagai baseline feature) — di sini didekomposisi ke level statement supaya bisa diagregasi ulang ke berbagai granularitas (function, file, dst) sesuai kebutuhan analisis nanti.
 
 ---

@@ -222,7 +222,13 @@ class TestClassificationPipeline(unittest.TestCase):
 
         self.assertTrue(output_path.read_bytes().startswith(previous_bytes))
         stored = pd.read_csv(output_path)
-        self.assertEqual(len(stored), len(prior_features) + len(expected_features))
+        self.assertEqual(len(stored), len(expected_features))
+        self.assertEqual(len(stored), len(stored.drop_duplicates(
+            subset=[
+                "cve_id", "commit_hash", "language", "file_path", "function_name",
+                "line_start", "line_end", "raw_text", "origin",
+            ]
+        )))
         self.assertEqual(list(stored.columns), list(expected_features.columns))
 
 

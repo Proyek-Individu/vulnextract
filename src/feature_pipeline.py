@@ -22,7 +22,11 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from .config import DEFAULT_FEATURES_OUTPUT_FILE, DEFAULT_MAX_ROWS
+from .config import (
+    DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
+    DEFAULT_FEATURES_OUTPUT_FILE,
+    DEFAULT_MAX_ROWS,
+)
 from .dataset_loader import load_dataset, normalize_dataframe
 from .features.feature_extractor import extract_features
 from .features.labeler import label_statements
@@ -34,6 +38,17 @@ from .output_writer import append_statement_features
 logger = logging.getLogger(__name__)
 
 _STATEMENT_RECORD_COLUMNS: List[str] = [f.name for f in fields(StatementRecord)]
+_INPUT_DEDUPE_COLUMNS = (
+    "cve_id", "commit_hash", "language", "file", "method",
+    "vulnerable_code", "fixed_code",
+)
+
+
+def _vulnerability_type_for_label(label: int, source_type: str) -> str:
+    if int(label) == 0:
+        return "none"
+    value = str(source_type or "").strip()
+    return "unknown" if not value or value.lower() in {"nan", "none"} else value
 
 
 def _has_dangerous_sink(record: StatementRecord) -> bool:
@@ -56,8 +71,13 @@ class FeatureExtractionPipeline:
     Python, JavaScript/TypeScript, PHP).
     """
 
-    def __init__(self, max_rows: Optional[int] = DEFAULT_MAX_ROWS) -> None:
+    def __init__(
+        self,
+        max_rows: Optional[int] = DEFAULT_MAX_ROWS,
+        allow_synthetic_fallback: bool = DEFAULT_ALLOW_SYNTHETIC_FALLBACK,
+    ) -> None:
         self.max_rows = max_rows
+        self.allow_synthetic_fallback = allow_synthetic_fallback
 
     def process_file(
         self,
@@ -73,17 +93,34 @@ class FeatureExtractionPipeline:
             )
 
         effective_max_rows = max_rows if max_rows is not None else self.max_rows
-        df = load_dataset(input_path, max_rows=effective_max_rows)
+        df = load_dataset(
+            input_path,
+            max_rows=effective_max_rows,
+            allow_synthetic_fallback=self.allow_synthetic_fallback,
+        )
 
         output_df, stats = self.process_dataframe(df)
 
         append_statement_features(output_df, canonical_output_path)
+        stats.skipped_duplicate_output_rows = int(
+            output_df.attrs.get("skipped_duplicate_output_rows", 0)
+        )
 
         return output_df, stats
 
     def process_dataframe(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, FeaturePipelineStats]:
-        df = normalize_dataframe(df)
-        stats = FeaturePipelineStats(total_input_rows=len(df))
+        df = normalize_dataframe(df, allow_synthetic_fallback=self.allow_synthetic_fallback)
+        skipped_advisory = int(df.attrs.get("skipped_advisory_no_commit_diff", 0))
+        normalized_input_rows = len(df)
+        duplicate_mask = df.duplicated(subset=list(_INPUT_DEDUPE_COLUMNS), keep="first")
+        skipped_duplicate_inputs = int(duplicate_mask.sum())
+        if skipped_duplicate_inputs:
+            df = df.loc[~duplicate_mask].copy()
+        stats = FeaturePipelineStats(
+            total_input_rows=normalized_input_rows + skipped_advisory,
+            skipped_advisory_no_commit_diff=skipped_advisory,
+            skipped_duplicate_input_rows=skipped_duplicate_inputs,
+        )
         rows: List[dict] = []
 
         for index, row in df.iterrows():
@@ -116,27 +153,33 @@ class FeatureExtractionPipeline:
             id_base = f"{base_meta['repo']}:{base_meta['file']}:{base_meta['method']}:{index}"
             is_unchanged = has_vulnerable_code and has_fixed_code and vulnerable_code.strip() == fixed_code.strip()
 
+            def build_tree(source_code, id_prefix):
+                unknown_counts = stats.unknown_statement_nodes.setdefault(language, {})
+                return build_statement_tree(
+                    source_code,
+                    language,
+                    schema,
+                    id_prefix,
+                    unknown_node_counts=unknown_counts,
+                )
+
             try:
                 if is_unchanged:
                     safe_meta = {**base_meta, "vulnerability_type": "none"}
-                    safe_roots, _safe_source = build_statement_tree(
-                        vulnerable_code, language, schema, f"{id_base}:unchanged"
-                    )
+                    safe_roots, _safe_source = build_tree(vulnerable_code, f"{id_base}:unchanged")
                     if not safe_roots:
                         stats.skipped_no_code += 1
                         continue
                     self._emit(safe_roots, schema, language, safe_meta, "unchanged", force_label_zero=True, rows=rows, stats=stats)
 
                 elif has_vulnerable_code and has_fixed_code:
-                    v_roots, v_source = build_statement_tree(vulnerable_code, language, schema, f"{id_base}:vulnerable")
-                    f_roots, f_source = build_statement_tree(fixed_code, language, schema, f"{id_base}:fixed_ref")
+                    v_roots, v_source = build_tree(vulnerable_code, f"{id_base}:vulnerable")
+                    f_roots, f_source = build_tree(fixed_code, f"{id_base}:fixed_ref")
                     label_statements(v_roots, f_roots, v_source, f_source)
                     self._emit(v_roots, schema, language, base_meta, "vulnerable", force_label_zero=False, rows=rows, stats=stats)
 
                     fixed_safe_meta = {**base_meta, "vulnerability_type": "none"}
-                    fixed_safe_roots, _fs_source = build_statement_tree(
-                        fixed_code, language, schema, f"{id_base}:fixed"
-                    )
+                    fixed_safe_roots, _fs_source = build_tree(fixed_code, f"{id_base}:fixed")
                     self._emit(fixed_safe_roots, schema, language, fixed_safe_meta, "fixed", force_label_zero=True, rows=rows, stats=stats)
 
                     if not v_roots and not fixed_safe_roots:
@@ -144,7 +187,7 @@ class FeatureExtractionPipeline:
 
                 elif has_vulnerable_code and not has_fixed_code:
                     # Unpaired vulnerable row (e.g. code_vulnerabilities.csv or CVEFixes safety="vulnerable")
-                    v_roots, _v_source = build_statement_tree(vulnerable_code, language, schema, f"{id_base}:vulnerable")
+                    v_roots, _v_source = build_tree(vulnerable_code, f"{id_base}:vulnerable")
                     if not v_roots:
                         stats.skipped_no_code += 1
                         continue
@@ -153,9 +196,7 @@ class FeatureExtractionPipeline:
                 else:
                     # Unpaired safe/fixed row (e.g. CVEFixes safety="safe")
                     fixed_safe_meta = {**base_meta, "vulnerability_type": "none"}
-                    fixed_safe_roots, _fs_source = build_statement_tree(
-                        fixed_code, language, schema, f"{id_base}:fixed"
-                    )
+                    fixed_safe_roots, _fs_source = build_tree(fixed_code, f"{id_base}:fixed")
                     if not fixed_safe_roots:
                         stats.skipped_no_code += 1
                         continue
@@ -168,6 +209,15 @@ class FeatureExtractionPipeline:
 
         output_df = pd.DataFrame(rows, columns=_STATEMENT_RECORD_COLUMNS) if rows else pd.DataFrame(columns=_STATEMENT_RECORD_COLUMNS)
         stats.total_output_rows = len(output_df)
+
+        for language_name, node_counts in sorted(stats.unknown_statement_nodes.items()):
+            for node_type, count in sorted(node_counts.items()):
+                logger.warning(
+                    "Unknown statement node skipped: language=%s type=%s count=%d",
+                    language_name,
+                    node_type,
+                    count,
+                )
 
         return output_df, stats
 
@@ -193,6 +243,9 @@ class FeatureExtractionPipeline:
 
         for node in flat_nodes:
             record = extract_features(node, id_to_node, schema, language, row_meta, origin=origin)
+            record.vulnerability_type = _vulnerability_type_for_label(
+                record.label, row_meta.get("vulnerability_type", "")
+            )
             rows.append(record.__dict__)
             if record.label:
                 stats.total_positive_labels += 1
@@ -238,6 +291,11 @@ class FeatureExtractionPipeline:
         else:
             for rec in records:
                 rec.label = 1
+
+        for rec in records:
+            rec.vulnerability_type = _vulnerability_type_for_label(
+                rec.label, row_meta.get("vulnerability_type", "")
+            )
 
         for rec in records:
             rows.append(rec.__dict__)

@@ -44,6 +44,7 @@ python src/main.py -m features
 python src/main.py -m features -i data/input/code_vulnerabilities.csv
 python src/main.py -m features -i data/input/CVEFixes.csv --max-rows 5000
 python src/main.py -m features -i "data/input/Security Vulnerabilities.csv"
+python src/main.py -m features -i "data/input/Security Vulnerabilities.csv" --allow-synthetic
 ```
 
 Opsi yang tersedia:
@@ -53,6 +54,7 @@ Opsi yang tersedia:
 | `-i`, `--input` | Path atau URL file input | `input_file` di `global.yaml` |
 | `-m`, `--mode` | Mode ekstraksi (satu-satunya nilai: `features`) | `features` |
 | `--max-rows` | Batas baris input (`0` = tanpa batas) | `max_rows` di `global.yaml` |
+| `--allow-synthetic` | Aktifkan fallback kode AST sintetis untuk advisory tanpa diff commit | `allow_synthetic_fallback` di `global.yaml` (default `false`) |
 | `-v`, `--verbose` | Aktifkan log debug | `verbose` di `global.yaml` |
 
 Mode `features` selalu menambahkan hasil ke `data/output/output_statement_features.csv`; CLI tidak menerima opsi output per dataset. Writer menyamakan urutan kolom berdasarkan nama, tidak menulis header berulang, dan menolak schema yang berbeda sebelum mengubah arsip.
@@ -72,13 +74,17 @@ Mode feature extraction memproses Go, Python, JavaScript, TypeScript, dan PHP. B
 
 Setiap baris output mewakili sebuah statement hasil parsing AST, beserta identitas/lokasi, teks, fitur leksikal dan perilaku, serta label. Kolom `origin` membedakan sumber statement:
 
-| `origin` | Sumber | Label |
-|---|---|---|
-| `vulnerable` | `vulnerable_code` | Hasil diff/aturan labeling |
-| `fixed` | `fixed_code` | `0` |
-| `unchanged` | Kode vulnerable dan fixed yang sama | `0` |
+Pemetaan statement mencakup PHP `global_decl` dan `unset`, Go `receive` untuk receive statement mandiri (kepala `select case <-x:` tetap bagian dari case, bukan baris), serta Python `decorated_def` yang menyertakan baris decorator. `future_import_statement` Python memakai tipe `import`. Node bernama tak dikenal pada posisi statement dilewati, dihitung per bahasa dan jenis node, serta dilaporkan di ringkasan akhir.
+
+| `origin` | Sumber | Label | `vulnerability_type` |
+|---|---|---:|---|
+| `vulnerable` | `vulnerable_code` | Hasil diff/aturan labeling | `none` untuk label `0`; jenis asli input untuk label `1` (`unknown` bila kosong) |
+| `fixed` | `fixed_code` | `0` | `none` |
+| `unchanged` | Kode vulnerable dan fixed yang sama | `0` | `none` |
 
 Rincian skema fitur tersedia di [context.md](context.md).
+
+Kolom `call_target_kind` dan deteksi concatenation adalah heuristik syntax-level: import/alias serta fungsi yang didefinisikan di sumber yang sedang diparse dipakai bila terlihat, tanpa indeks simbol lintas repo atau analisis tipe. `cyclomatic_contribution` menghitung tiap `if`, loop, case, dan catch; untuk Go `select`, jumlah cabangnya disimpan pada baris `select` karena kepala komunikasi case bukan baris statement terpisah.
 
 ## Konfigurasi
 

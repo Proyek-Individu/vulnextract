@@ -8,7 +8,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from src.main import run_interactive_menu
+from src.main import parse_args, run_interactive_menu
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MAIN_SCRIPT = PROJECT_ROOT / "src" / "main.py"
@@ -27,6 +27,11 @@ class TestMainCli(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("-m {features}", result.stdout)
         self.assertNotIn("classify", result.stdout)
+
+    def test_allow_synthetic_flag_is_available(self):
+        with patch.object(sys, "argv", [str(MAIN_SCRIPT), "--allow-synthetic"]):
+            args = parse_args()
+        self.assertTrue(args.allow_synthetic)
 
     def test_pairs_and_classify_modes_are_rejected(self):
         for mode in ("pairs", "classify"):

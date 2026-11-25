@@ -11,7 +11,7 @@ extraction failure (a row that could not be produced at all), never for
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Dict, Optional
 
 
 @dataclass
@@ -99,3 +99,7 @@ class FeaturePipelineStats:
     skipped_unsupported_language: int = 0
     skipped_no_code: int = 0
     skipped_extraction_failure: int = 0
+    skipped_advisory_no_commit_diff: int = 0
+    skipped_duplicate_input_rows: int = 0
+    skipped_duplicate_output_rows: int = 0
+    unknown_statement_nodes: Dict[str, Dict[str, int]] = field(default_factory=dict)

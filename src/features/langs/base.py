@@ -136,6 +136,10 @@ class LanguageFeatureSchema:
     # have — this is a documented approximation, not a resolved import table.
     stdlib_prefixes: FrozenSet[str] = field(default_factory=frozenset)
 
+    # Unqualified language/runtime builtins for the best-effort
+    # call_target_kind classification.
+    stdlib_call_names: FrozenSet[str] = field(default_factory=frozenset)
+
     # Plain substring patterns checked directly against a statement's raw
     # text for is_output_render cases that aren't call-shaped at all (JS
     # `el.innerHTML =`, PHP `echo`/`print`) — a deliberately loose,

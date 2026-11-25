@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from .config import is_url
+from .config import DEFAULT_ALLOW_SYNTHETIC_FALLBACK, is_url
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +52,11 @@ CANONICAL_COLUMNS: List[str] = [
     "commit_msg",
     "granularity",
 ]
+
+COMMIT_HASH_ALIASES = (
+    "commit_hash", "hash", "sha", "commit", "commit_id", "commit_sha",
+    "fix_commit", "fixing_commit",
+)
 
 # Maps language names, file extensions, and package ecosystems to canonical names.
 LANGUAGE_ALIASES: Dict[str, str] = {
@@ -137,6 +142,20 @@ _FUNC_NAME_PATTERNS = [
 
 def _norm_col(col: str) -> str:
     return re.sub(r"[\s\-]+", "_", str(col).strip().lower())
+
+
+def _commit_hash_from_row(row: pd.Series, col_map: Dict[str, str]) -> str:
+    """Read the first populated hash value from the shared commit aliases."""
+    for alias in COMMIT_HASH_ALIASES:
+        col = col_map.get(_norm_col(alias))
+        if col is None:
+            continue
+        value = row.get(col)
+        if value is not None and not pd.isna(value):
+            value = str(value).strip()
+            if value and value.lower() != "nan":
+                return value
+    return ""
 
 
 def normalize_language(raw_lang: Any, code: str = "", file_path: str = "", summary: str = "") -> str:
@@ -780,6 +799,7 @@ def load_dataset(
     input_path: Union[str, Path],
     max_rows: Optional[int] = None,
     fetch_github: bool = True,
+    allow_synthetic_fallback: Optional[bool] = None,
 ) -> pd.DataFrame:
     """
     Loads a CSV dataset from `input_path` (local path or URL), optionally
@@ -798,13 +818,19 @@ def load_dataset(
         logger.info(f"Loading input dataset from {input_path}...")
 
     df = pd.read_csv(input_path, nrows=nrows, low_memory=False)
-    return normalize_dataframe(df, max_rows=nrows, fetch_github=fetch_github)
+    return normalize_dataframe(
+        df,
+        max_rows=nrows,
+        fetch_github=fetch_github,
+        allow_synthetic_fallback=allow_synthetic_fallback,
+    )
 
 
 def normalize_dataframe(
     df: pd.DataFrame,
     max_rows: Optional[int] = None,
     fetch_github: bool = True,
+    allow_synthetic_fallback: Optional[bool] = None,
 ) -> pd.DataFrame:
     """
     Normalizes an in-memory DataFrame of any supported vulnerability dataset
@@ -815,6 +841,9 @@ def normalize_dataframe(
 
     if max_rows is not None and int(max_rows) > 0 and len(df) > int(max_rows):
         df = df.head(int(max_rows)).copy()
+
+    if allow_synthetic_fallback is None:
+        allow_synthetic_fallback = DEFAULT_ALLOW_SYNTHETIC_FALLBACK
 
     col_map = {_norm_col(c): c for c in df.columns}
 
@@ -831,6 +860,7 @@ def normalize_dataframe(
                     out[col] = out[col_map[col]]
                 else:
                     out[col] = "method" if col == "granularity" else ""
+        out["commit_hash"] = out.apply(lambda row: _commit_hash_from_row(row, col_map), axis=1)
         return out
 
     # Identify column roles across heterogeneous schemas
@@ -874,9 +904,6 @@ def normalize_dataframe(
     repo_col = next((col_map[k] for k in (
         "repo", "repository", "project", "package",
     ) if k in col_map), None)
-    commit_col = next((col_map[k] for k in (
-        "commit_hash", "commit", "commit_id", "sha",
-    ) if k in col_map), None)
     msg_col = next((col_map[k] for k in (
         "commit_msg", "title", "message", "description",
     ) if k in col_map), None)
@@ -884,6 +911,7 @@ def normalize_dataframe(
 
     gh_resolver = _GitHubAdvisoryResolver(enabled=fetch_github)
     normalized_rows: List[Dict[str, Any]] = []
+    skipped_advisory_no_commit_diff = 0
 
     for idx, row in df.iterrows():
         raw_summary = str(row.get(summary_col, "") or "") if summary_col else ""
@@ -940,7 +968,7 @@ def normalize_dataframe(
             )
 
         # 6. Determine safety / side assignment for single-code or link datasets
-        commit_hash = str(row.get(commit_col, "") or "").strip() if commit_col and not pd.isna(row.get(commit_col)) else ""
+        commit_hash = _commit_hash_from_row(row, col_map)
         granularity = str(row.get(col_map["granularity"], "") or "").strip() if "granularity" in col_map else ""
 
         if not v_code and not f_code and single_code:
@@ -972,6 +1000,9 @@ def normalize_dataframe(
                 if fetched_sha and not commit_hash:
                     commit_hash = fetched_sha
             else:
+                if not allow_synthetic_fallback:
+                    skipped_advisory_no_commit_diff += 1
+                    continue
                 pkg_slug = re.sub(r"[^A-Za-z0-9_]", "_", repo.split("/")[-1] if repo else f"adv_{idx}")
                 v_code, f_code = synthesize_advisory_code_pair(
                     language=language,
@@ -1022,7 +1053,9 @@ def normalize_dataframe(
             "granularity": granularity,
         })
 
-    return pd.DataFrame(normalized_rows, columns=CANONICAL_COLUMNS)
+    result = pd.DataFrame(normalized_rows, columns=CANONICAL_COLUMNS)
+    result.attrs["skipped_advisory_no_commit_diff"] = skipped_advisory_no_commit_diff
+    return result
 
 
 def ensure_binary_classes_for_classification(raw_df: pd.DataFrame) -> pd.DataFrame:

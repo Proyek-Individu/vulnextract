@@ -17,11 +17,11 @@ STATEMENT_NODE_TYPES = frozenset({
     "throw_statement", "return_statement", "break_statement", "continue_statement",
     "import_statement", "export_statement", "function_declaration",
     "variable_declaration", "lexical_declaration", "labeled_statement",
+    "catch_clause", "switch_case", "switch_default",
 })
 
 TRANSPARENT_NODE_TYPES = frozenset({
-    "statement_block", "else_clause", "catch_clause", "finally_clause",
-    "switch_body", "switch_case", "switch_default",
+    "statement_block", "else_clause", "finally_clause", "switch_body",
 })
 
 STATEMENT_TYPE_MAP = {
@@ -42,6 +42,9 @@ STATEMENT_TYPE_MAP = {
     "variable_declaration": "assign",
     "lexical_declaration": "assign",
     "labeled_statement": "label",
+    "catch_clause": "catch",
+    "switch_case": "switch_case",
+    "switch_default": "switch_case",
 }
 
 BLOCK_TYPE_BY_FIELD = {
@@ -114,7 +117,17 @@ SANITIZER_NAMES = SinkFlag(exact=frozenset({"DOMPurify.sanitize", "encodeURIComp
 CONCAT_OR_FORMAT_NODE_TYPES = frozenset({"binary_expression", "template_string"})
 FORMAT_CALL_SIGNATURE = SinkFlag()  # JS has no dedicated format-call idiom distinct from template_string
 
-STDLIB_PREFIXES = frozenset({"JSON", "Math", "console", "fs", "path", "http", "https", "crypto", "util"})
+STDLIB_PREFIXES = frozenset({
+    "JSON", "Math", "console", "fs", "path", "http", "https", "crypto", "util",
+    "child_process", "buffer", "stream", "url", "querystring", "events", "process",
+    "assert", "timers", "os",
+})
+STDLIB_CALL_NAMES = frozenset({
+    "Array", "Boolean", "Date", "Error", "Map", "Math", "Number", "Object", "Promise", "RegExp",
+    "Set", "String", "Symbol", "WeakMap", "WeakSet", "decodeURI", "decodeURIComponent", "encodeURI",
+    "encodeURIComponent", "eval", "fetch", "isFinite", "isNaN", "parseFloat", "parseInt",
+    "setInterval", "setTimeout", "clearInterval", "clearTimeout", "queueMicrotask",
+})
 
 OUTPUT_RENDER_TEXT_PATTERNS = frozenset({".innerHTML"})
 
@@ -144,6 +157,7 @@ SCHEMA = LanguageFeatureSchema(
     sink_flags=SINK_FLAGS,
     sanitizer_names=SANITIZER_NAMES,
     stdlib_prefixes=STDLIB_PREFIXES,
+    stdlib_call_names=STDLIB_CALL_NAMES,
     identifier_node_type="identifier",
     concat_or_format_node_types=CONCAT_OR_FORMAT_NODE_TYPES,
     concat_operator="+",

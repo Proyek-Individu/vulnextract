@@ -19,11 +19,12 @@ STATEMENT_NODE_TYPES = frozenset({
     "raise_statement", "import_statement", "import_from_statement",
     "break_statement", "continue_statement", "pass_statement",
     "global_statement", "nonlocal_statement", "assert_statement",
-    "delete_statement", "function_definition",
+    "delete_statement", "function_definition", "decorated_definition",
+    "future_import_statement", "except_clause",
 })
 
 TRANSPARENT_NODE_TYPES = frozenset({
-    "block", "except_clause", "else_clause", "finally_clause",
+    "block", "else_clause", "finally_clause",
 })
 
 STATEMENT_TYPE_MAP = {
@@ -37,6 +38,7 @@ STATEMENT_TYPE_MAP = {
     "raise_statement": "throw_raise",
     "import_statement": "import",
     "import_from_statement": "import",
+    "future_import_statement": "import",
     "break_statement": "break",
     "continue_statement": "continue",
     "pass_statement": "pass",
@@ -45,6 +47,8 @@ STATEMENT_TYPE_MAP = {
     "assert_statement": "assert",
     "delete_statement": "delete",
     "function_definition": "function_def",
+    "decorated_definition": "decorated_def",
+    "except_clause": "catch",
     # expression_statement is refined below by inspecting its single child.
 }
 
@@ -123,16 +127,22 @@ SINK_FLAGS = {
 # Category E sanitizer signatures, transcribed verbatim from context.md.
 SANITIZER_NAMES = SinkFlag(exact=frozenset({"shlex.quote", "bleach.clean"}))
 
-CONCAT_OR_FORMAT_NODE_TYPES = frozenset({"binary_expression", "interpolation"})  # f-strings hold "interpolation" children
+CONCAT_OR_FORMAT_NODE_TYPES = frozenset({"binary_expression", "binary_operator", "interpolation"})
 FORMAT_CALL_SIGNATURE = SinkFlag(suffix=frozenset({".format"}))
-# Known gap (documented, not implemented): "%"-style formatting ("%s" % x)
-# is not detected — distinguishing it from ordinary modulo arithmetic would
-# need operand-type inspection this v1 doesn't attempt.
 
 STDLIB_PREFIXES = frozenset({
     "os", "sys", "re", "json", "subprocess", "io", "time", "itertools",
     "collections", "typing", "pathlib", "shutil", "urllib", "http", "socket",
     "pickle", "logging", "functools", "hashlib", "shlex", "glob",
+})
+STDLIB_CALL_NAMES = frozenset({
+    "abs", "all", "any", "ascii", "bin", "bool", "bytearray", "bytes", "callable",
+    "chr", "classmethod", "compile", "complex", "dict", "dir", "divmod", "enumerate",
+    "eval", "exec", "filter", "float", "format", "frozenset", "getattr", "hasattr", "hash",
+    "help", "hex", "id", "input", "int", "isinstance", "issubclass", "iter", "len", "list",
+    "map", "max", "memoryview", "min", "next", "object", "oct", "open", "ord", "pow", "print",
+    "property", "range", "repr", "reversed", "round", "set", "setattr", "slice", "sorted",
+    "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip",
 })
 
 
@@ -161,6 +171,7 @@ SCHEMA = LanguageFeatureSchema(
     sink_flags=SINK_FLAGS,
     sanitizer_names=SANITIZER_NAMES,
     stdlib_prefixes=STDLIB_PREFIXES,
+    stdlib_call_names=STDLIB_CALL_NAMES,
     identifier_node_type="identifier",
     concat_or_format_node_types=CONCAT_OR_FORMAT_NODE_TYPES,
     concat_operator="+",

@@ -17,13 +17,13 @@ STATEMENT_NODE_TYPES = frozenset({
     "expression_statement", "if_statement", "else_if_clause", "foreach_statement",
     "for_statement", "while_statement", "do_statement", "switch_statement",
     "try_statement", "return_statement", "break_statement", "continue_statement",
-    "global_statement", "echo_statement", "goto_statement", "function_definition",
-    "const_declaration",
+    "global_declaration", "unset_statement", "echo_statement", "goto_statement",
+    "function_definition", "const_declaration", "catch_clause", "case_statement",
+    "default_statement",
 })
 
 TRANSPARENT_NODE_TYPES = frozenset({
-    "compound_statement", "else_clause", "catch_clause", "finally_clause",
-    "switch_block", "case_statement", "default_statement",
+    "compound_statement", "else_clause", "finally_clause", "switch_block",
 })
 
 STATEMENT_TYPE_MAP = {
@@ -38,11 +38,15 @@ STATEMENT_TYPE_MAP = {
     "return_statement": "return",
     "break_statement": "break",
     "continue_statement": "continue",
-    "global_statement": "global",
+    "global_declaration": "global_decl",
+    "unset_statement": "unset",
     "echo_statement": "echo",
     "goto_statement": "goto",
     "function_definition": "function_def",
     "const_declaration": "assign",
+    "catch_clause": "catch",
+    "case_statement": "switch_case",
+    "default_statement": "switch_case",
 }
 
 BLOCK_TYPE_BY_FIELD = {
@@ -120,10 +124,17 @@ SINK_FLAGS = {
     "is_network_call": SinkFlag(exact=frozenset({"curl_exec", "file_get_contents"})),
     "is_output_render": SinkFlag(),  # "echo"/"print" aren't calls; handled via statement_type == "echo" in feature_extractor.py
 }
+STDLIB_CALL_NAMES = frozenset({
+    "array_filter", "array_map", "array_merge", "count", "curl_exec", "defined", "define", "empty", "exec", "file_exists",
+    "file_get_contents", "fopen", "htmlentities", "htmlspecialchars", "implode", "in_array", "intval",
+    "is_array", "is_null", "json_decode", "json_encode", "preg_match", "preg_match_all", "sprintf",
+    "passthru", "shell_exec", "strlen", "str_replace", "strpos", "strtolower", "substr", "system",
+    "trim", "unset", "unserialize", "var_dump",
+})
 
 # Category E sanitizer signatures, transcribed verbatim from context.md.
 SANITIZER_NAMES = SinkFlag(exact=frozenset({
-    "htmlspecialchars", "filter_var", "mysqli_real_escape_string",
+    "htmlspecialchars", "htmlentities", "filter_var", "mysqli_real_escape_string",
 }))
 
 CONCAT_OR_FORMAT_NODE_TYPES = frozenset({"binary_expression", "encapsed_string"})
@@ -156,6 +167,7 @@ SCHEMA = LanguageFeatureSchema(
     lhs_identifiers_of=_lhs_identifiers_of,
     sink_flags=SINK_FLAGS,
     sanitizer_names=SANITIZER_NAMES,
+    stdlib_call_names=STDLIB_CALL_NAMES,
     identifier_node_type="variable_name",
     concat_or_format_node_types=CONCAT_OR_FORMAT_NODE_TYPES,
     concat_operator=".",

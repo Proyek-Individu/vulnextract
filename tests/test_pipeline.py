@@ -233,7 +233,7 @@ class TestPipeline(unittest.TestCase):
             "Link": ["https://github.com/advisories/GHSA-6xcx-gx7r-rccj"],
         })
         from src.dataset_loader import normalize_dataframe
-        norm_df = normalize_dataframe(df, fetch_github=False)
+        norm_df = normalize_dataframe(df, fetch_github=False, allow_synthetic_fallback=True)
         pipeline = CveMethodPipeline(granularity="statement")
         output_df, stats = pipeline.process_dataframe(norm_df)
         self.assertEqual(stats.total_input_rows, 1)

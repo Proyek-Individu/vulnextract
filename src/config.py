@@ -40,6 +40,7 @@ _DEFAULTS: Dict[str, Any] = {
         "strategy": "aligned",
     },
     "verbose": False,
+    "allow_synthetic_fallback": False,
     # Mode "classify" (menu 3). Penjelasan tiap kunci ada di global.yaml.
     "classification": {
         "raw_input": str(PROJECT_ROOT / "data" / "input" / "cve_fix_pairs.csv"),
@@ -157,6 +158,7 @@ DEFAULT_FEATURES_OUTPUT_FILE = _resolve_path(GLOBAL["output"]["features"])
 DEFAULT_GRANULARITY = GLOBAL["pairs"]["granularity"]
 DEFAULT_STRATEGY = GLOBAL["pairs"]["strategy"]
 DEFAULT_VERBOSE = bool(GLOBAL["verbose"])
+DEFAULT_ALLOW_SYNTHETIC_FALLBACK = bool(GLOBAL.get("allow_synthetic_fallback", False))
 
 # Mode "classify": seluruh blok `classification:` dari global.yaml (sudah
 # di-merge dengan default di atas), plus path-nya yang sudah di-resolve.

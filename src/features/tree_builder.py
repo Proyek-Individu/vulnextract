@@ -15,11 +15,20 @@ statement boundaries never drift from the existing flat pair pipeline's.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from src.extractors import get_extractor
 from src.extractors.base import BaseMethodExtractor
 from .langs.base import COMMENT_NODE_TYPES, LanguageFeatureSchema
+
+
+_STATEMENT_CONTAINER_NODE_TYPES = {
+    "go": frozenset({"statement_list"}),
+    "python": frozenset({"block"}),
+    "javascript": frozenset({"statement_block"}),
+    "typescript": frozenset({"statement_block"}),
+    "php": frozenset({"compound_statement"}),
+}
 
 
 @dataclass
@@ -35,6 +44,7 @@ class StatementNode:
     statement_type: str
     parent_block_type: str
     field_name: Optional[str]
+    source_line_offset: int = 0
     children: List["StatementNode"] = field(default_factory=list)
     # Set by labeler.py after the tree is built; 0 (unchanged) by default —
     # only statements the vulnerable/fixed diff identifies as actually
@@ -119,6 +129,7 @@ def build_statement_tree(
     language: str,
     schema: LanguageFeatureSchema,
     id_prefix: str,
+    unknown_node_counts: Optional[Dict[str, int]] = None,
 ) -> Tuple[List[StatementNode], bytes]:
     """
     Builds the hierarchical statement tree for one method's or file's source.
@@ -148,6 +159,11 @@ def build_statement_tree(
     # TypeScript's isolated-method wrapping quirk (see extractors/typescript.py)
     wrap = getattr(extractor, "_wrap_if_isolated_method", None)
     effective_source = wrap(source_code) if callable(wrap) else source_code
+    source_offset = (
+        effective_source[:effective_source.find(source_code)].count("\n")
+        if effective_source != source_code and source_code in effective_source
+        else 0
+    )
 
     parser = extractor.resolve_statement_parser(effective_source)
     if parser is None:
@@ -158,17 +174,24 @@ def build_statement_tree(
     tree = parser.parse(source_bytes)
 
     func_node = BaseMethodExtractor.find_enclosing_function(tree.root_node, function_node_types)
+    body = None
     if func_node is not None:
         body = func_node.child_by_field_name("body")
-        container_root = body if body is not None else tree.root_node
-    else:
-        container_root = tree.root_node
+    container_root = body if body is not None else tree.root_node
+    decorated_function = None
+    if language == "python" and func_node is not None:
+        parent = func_node.parent
+        if parent is not None and parent.type == "decorated_definition":
+            decorated_function = parent
 
     counter = [0]
+    unknown_nodes_seen = set()
 
     def make_id(node) -> str:
         counter[0] += 1
-        return f"{id_prefix}:{node.start_point[0] + 1}-{node.end_point[0] + 1}#{counter[0]}"
+        line_start = node.start_point[0] + 1 - source_offset
+        line_end = node.end_point[0] + 1 - source_offset
+        return f"{id_prefix}:{line_start}-{line_end}#{counter[0]}"
 
     def classify(node_type: str) -> str:
         if node_type in schema.transparent_node_types:
@@ -198,7 +221,12 @@ def build_statement_tree(
             if child.is_named and child.type not in COMMENT_NODE_TYPES:
                 kind = classify(child.type)
                 new_block_type = resolve_block_type(container_node.type, child_field, child.type, block_type)
-                if kind == "statement":
+                is_select_case_head = (
+                    child.type == "receive_statement"
+                    and container_node.type == "communication_case"
+                    and child_field == "communication"
+                )
+                if kind == "statement" and not is_select_case_head:
                     stype = schema.refine_statement_type(child) or schema.statement_type_map.get(child.type, child.type)
                     node = StatementNode(
                         ast_node=child,
@@ -208,17 +236,52 @@ def build_statement_tree(
                         statement_type=stype,
                         parent_block_type=new_block_type,
                         field_name=child_field,
+                        source_line_offset=source_offset,
                     )
-                    node.children = walk_container(child, node.statement_id, nesting_depth + 1, block_type)
+                    node.children = walk_container(child, node.statement_id, nesting_depth + 1, new_block_type)
                     results.append(node)
                 elif kind == "transparent":
                     results.extend(walk_container(child, parent_statement_id, nesting_depth, new_block_type))
+                elif (
+                    unknown_node_counts is not None
+                    and (
+                        container_node.type in _STATEMENT_CONTAINER_NODE_TYPES.get(
+                            language or schema.language, frozenset()
+                        )
+                        or container_node is tree.root_node
+                    )
+                    and not is_select_case_head
+                ):
+                    unknown_key = (child.type, child.start_byte, child.end_byte)
+                    if unknown_key not in unknown_nodes_seen:
+                        unknown_nodes_seen.add(unknown_key)
+                        unknown_node_counts[child.type] = unknown_node_counts.get(child.type, 0) + 1
                 # leaf: part of the enclosing statement's own header/condition text, not recursed
             if not cursor.goto_next_sibling():
                 break
         return results
 
-    roots = walk_container(container_root, None, 0, "function_body")
+    if decorated_function is not None and body is not None:
+        decorated_id = make_id(decorated_function)
+        decorated_children = walk_container(body, decorated_id, 1, "function_body")
+        decorated_type = schema.refine_statement_type(decorated_function) or schema.statement_type_map.get(
+            decorated_function.type, decorated_function.type
+        )
+        roots = [
+            StatementNode(
+                ast_node=decorated_function,
+                statement_id=decorated_id,
+                parent_statement_id=None,
+                nesting_depth=0,
+                statement_type=decorated_type,
+                parent_block_type="function_body",
+                field_name=None,
+                source_line_offset=source_offset,
+                children=decorated_children,
+            )
+        ]
+    else:
+        roots = walk_container(container_root, None, 0, "function_body")
 
     # Fallback for whole-file inputs (e.g. CVEFixes.csv) where the first
     # function node is empty or an expression-bodied arrow function: check
